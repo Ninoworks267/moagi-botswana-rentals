@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+*.db
+*.db-shm
+*.db-wal
+moagi-backup*.db
+app-backup*.py
+app-before*.py
+app.py.before*
+app_*before*.py
+app_*repair*.py
+app_pre_cleanup.py
+app_damaged*.py
+app_empty*.py
+moagii web.zip
+static/uploads/
+.env
