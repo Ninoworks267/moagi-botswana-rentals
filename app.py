@@ -102,8 +102,23 @@ def init_db():
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS stays (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            stay_type TEXT NOT NULL,
+            title TEXT NOT NULL,
+            location TEXT NOT NULL,
+            price REAL NOT NULL,
+            photo TEXT,
+            description TEXT NOT NULL,
+            rating REAL DEFAULT 4.5,
+            reviews TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
     conn.commit()
     seed_demo(conn)
+    seed_stays(conn)
     conn.close()
 
 def seed_demo(conn):
@@ -153,6 +168,34 @@ def seed_demo(conn):
         if not has_review:
             conn.execute("INSERT INTO reviews (landlord_id,tenant_id,rating,comment) VALUES (?,?,?,?)",
                          (landlord["id"], tenant["id"], 5, "Great communication and a smooth viewing. Very helpful!"))
+    conn.commit()
+
+def seed_stays(conn):
+    count = conn.execute("SELECT COUNT(*) FROM stays").fetchone()[0]
+    if count > 0:
+        return
+    airbnb = [
+        ("Airbnb","Modern studio in Gaborone CBD","Gaborone",650,"https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1000&q=85","Stylish studio with fast wifi and self check-in.","4.8","Great host, very clean. - Thabo"),
+        ("Airbnb","Cosy 1-bedroom in Block 3","Gaborone",520,"https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1000&q=85","Quiet apartment near shops.","4.6","Loved the location. - Naledi"),
+        ("Airbnb","Family home in Broadhurst","Gaborone",1200,"https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1000&q=85","Spacious family home with garden.","4.9","Perfect for family. - Kabelo"),
+        ("Airbnb","Francistown city apartment","Francistown",480,"https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?auto=format&fit=crop&w=1000&q=85","Central apartment with parking.","4.5","Clean and convenient. - Mpho"),
+        ("Airbnb","Maun safari lodge room","Maun",890,"https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1000&q=85","Comfortable room near delta.","4.7","Amazing experience. - Sarah"),
+        ("Airbnb","Kasane riverside cottage","Kasane",1100,"https://images.unsplash.com/photo-1582268611958-ebfd161ef9cf?auto=format&fit=crop&w=1000&q=85","Cottage with river views.","4.9","Stunning views. - John"),
+        ("Airbnb","Palapye guest suite","Palapye",400,"https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1000&q=85","Private suite with kitchenette.","4.4","Good value. - Lesego"),
+        ("Airbnb","Molepolole village stay","Molepolole",350,"https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=1000&q=85","Traditional home experience.","4.3","Warm hosts. - Tumelo"),
+        ("Airbnb","Lobatse hilltop villa","Lobatse",950,"https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&w=1000&q=85","Villa with panoramic views.","4.8","Beautiful property. - Ana"),
+        ("Airbnb","Serowe heritage home","Serowe",500,"https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=1000&q=85","Heritage home with modern touches.","4.6","Unique stay. - David"),
+    ]
+    guest = [
+        ("Guesthouse","Gaborone Sun Guesthouse","Gaborone",550,"https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1000&q=85","Comfortable guesthouse with breakfast.","4.5","Friendly staff. - Mimi"),
+        ("Guesthouse","Francistown Inn","Francistown",420,"https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=1000&q=85","Affordable inn in city center.","4.2","Good location. - Peter"),
+        ("Guesthouse","Maun River Lodge","Maun",980,"https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=1000&q=85","Lodge by the river with pool.","4.7","Lovely pool. - Lisa"),
+        ("Guesthouse","Kasane Safari Inn","Kasane",870,"https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1000&q=85","Inn near Chobe National Park.","4.8","Great safari base. - Tom"),
+        ("Guesthouse","Palapye Travellers Lodge","Palapye",380,"https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=1000&q=85","Budget lodge for travellers.","4.1","Clean rooms. - Grace"),
+    ]
+    for stype,title,loc,price,photo,desc,rating,rev in airbnb+guest:
+        conn.execute("""INSERT INTO stays (stay_type,title,location,price,photo,description,rating,reviews) VALUES (?,?,?,?,?,?,?,?)""",
+                     (stype,title,loc,price,photo,desc,float(rating),rev))
     conn.commit()
 
 def current_user():
@@ -210,7 +253,7 @@ input,select,textarea{width:100%;padding:13px;margin:7px 0 15px;background:#fff;
 </style></head><body>
 <div id="intro"><h1>MOAGI.</h1><p>EITA DAH! </p></div>
 <nav><a class="logo" href="/">MOAGI.</a><div class="links">
-<a href="/houses">Houses</a>{% if me %}<a href="/dashboard">Dashboard</a><a href="/inbox">Inbox</a><a href="/profile/edit">My profile</a><a href="/logout">Log out</a>{% else %}<a href="/login">Log in</a><a class="btn" href="/register">Join MOAGI</a>{% endif %}
+<a href="/houses">Houses</a><a href="/stays">Stays</a>{% if me %}<a href="/dashboard">Dashboard</a><a href="/inbox">Inbox</a><a href="/profile/edit">My profile</a><a href="/logout">Log out</a>{% else %}<a href="/login">Log in</a><a class="btn" href="/register">Join MOAGI</a>{% endif %}
 </div></nav><main class="container">
 {% with items=get_flashed_messages() %}{% for item in items %}<div class="flash">{{item}}</div>{% endfor %}{% endwith %}
 {{body|safe}}</main><footer>MOAGI - Find your space in Botswana</footer>
@@ -237,6 +280,7 @@ def home():
         <a class="card" href="/houses" style="text-decoration:none"><h3>Houses</h3><p class="muted">Browse and search rental homes across Botswana.</p></a>
         <a class="card" href="/inbox" style="text-decoration:none"><h3>Messages (DM)</h3><p class="muted">Private conversations with landlords and tenants.</p></a>
         <a class="card" href="/report" style="text-decoration:none"><h3>Reports</h3><p class="muted">Report a concern privately to MOAGI admins.</p></a>
+        <a class="card" href="/stays" style="text-decoration:none"><h3>Stays (Airbnb & Guesthouses)</h3><p class="muted">Short-term stays, guesthouses and Airbnb across Botswana.</p></a>
         <a class="card" href="#help" style="text-decoration:none"><h3>Help</h3><p class="muted">How MOAGI works and how to get support.</p></a>
     </div>
 
@@ -326,6 +370,60 @@ def houses():
     <p class="muted">{{p.bedrooms}} bedrooms, {{p.bathrooms}} bathrooms</p><p class="small">Listed by {{p.first_name}} {{p.surname}}</p><a class="btn" href="/property/{{p.id}}">View home</a></article>
     {% else %}<p class="muted">No homes match that search yet. Try another location.</p>{% endfor %}</div>
     """, homes=homes, search=search, location=location, bedrooms=bedrooms)
+
+@app.route("/stays")
+def stays():
+    stype = request.args.get("type","").strip()
+    conn = db()
+    sql = "SELECT * FROM stays WHERE 1=1"
+    args = []
+    if stype:
+        sql += " AND stay_type=?"
+        args.append(stype)
+    sql += " ORDER BY id DESC"
+    rows = conn.execute(sql, args).fetchall()
+    conn.close()
+    return page("""
+    <h1>Stays: Airbnb & Guesthouses</h1>
+    <p class="muted">Short-term stays across Botswana. Book a room, guesthouse or Airbnb.</p>
+    <div class="grid">{% for s in stays %}
+    <article class="card">
+        {% if s.photo %}<img src="{{s.photo}}" alt="{{s.title}}">{% endif %}
+        <p class="tag">{{s.stay_type}} - {{s.location}}</p>
+        <h3>{{s.title}}</h3>
+        <div class="price">P{{"{:,.0f}".format(s.price)}} <span class="small">/ night</span></div>
+        <p class="muted">{{s.description}}</p>
+        <p class="small">Rating: {{s.rating}}/5 - {{s.reviews}}</p>
+        <a class="btn" href="/pay?item={{s.title}}&amount={{s.price}}">Book & Pay</a>
+    </article>
+    {% else %}<p class="muted">No stays found.</p>{% endfor %}</div>
+    """, stays=rows)
+
+@app.route("/pay", methods=["GET","POST"])
+def pay():
+    item = request.args.get("item","Booking")
+    amount = request.args.get("amount","0")
+    if request.method == "POST":
+        method = request.form.get("method","")
+        phone = request.form.get("phone","").strip()
+        flash("Payment request sent via " + method + " to " + phone + ". Complete on your phone.")
+        return redirect(url_for("pay", item=item, amount=amount))
+    return page("""
+    <h1>Pay for {{item}}</h1>
+    <p class="muted">Amount: P{{amount}}. Choose a mobile money method.</p>
+    <form method="post" class="card">
+        <label>Payment method</label>
+        <select name="method" required>
+            <option>MyZaka</option>
+            <option>Orange Money</option>
+            <option>Smega</option>
+        </select>
+        <label>Your phone number</label>
+        <input name="phone" placeholder="+267..." required>
+        <button class="btn">Pay now</button>
+    </form>
+    <div class="card"><h3>Landlord onboarding</h3><p class="muted">Landlords pay a small onboarding fee via the same methods to activate listings.</p></div>
+    """, item=item, amount=amount)
 
 @app.route("/register", methods=["GET","POST"])
 def register():
@@ -514,18 +612,20 @@ def landlord_profile(user_id):
         JOIN users u ON u.id=r.tenant_id WHERE r.landlord_id=? ORDER BY r.created_at DESC""",(user_id,)).fetchall()
     avg = conn.execute("SELECT COALESCE(AVG(rating),0) FROM reviews WHERE landlord_id=?",(user_id,)).fetchone()[0]
     count = len(reviews)
+    report_count = conn.execute("SELECT COUNT(*) FROM reports WHERE reported_user_id=?",(user_id,)).fetchone()[0]
     conn.close()
     return page("""
     <div class="profile-head">{% if landlord.profile_photo %}<img class="avatar" src="{{landlord.profile_photo if landlord.profile_photo.startswith('http') else url_for('static',filename='uploads/'+landlord.profile_photo)}}">{% else %}<div class="avatar"></div>{% endif %}
     <div><div class="eyebrow">Landlord profile</div><h1>{{landlord.first_name}} {{landlord.surname}}</h1><p class="muted">{{landlord.location}}  {{'' * (avg|round|int)}}{{'' * (5-(avg|round|int))}} {{'%.1f'|format(avg)}}/5 ({{count}} reviews)</p></div></div>
     <p class="muted">{{landlord.bio or 'This landlord has not added a bio yet.'}}</p>
+    {% if report_count and report_count > 0 %}<div class="flash">This landlord has {{report_count}} report(s) submitted by tenants. Review carefully before proceeding.</div>{% endif %}
     {% if me and me.id != landlord.id %}<a class="btn" href="/chat/{{landlord.id}}">Message landlord</a>{% endif %}
     <h2>Properties</h2><div class="grid">{% for p in homes %}<div class="card"><h3>{{p.title}}</h3><p class="muted">{{p.location}}  P{{"{:,.0f}".format(p.price)}} / month</p><a href="/property/{{p.id}}">View property</a></div>{% else %}<p class="muted">No properties listed yet.</p>{% endfor %}</div>
     <hr><h2>Tenant reviews & comments</h2>{% if me and me.role=='tenant' and me.id != landlord.id %}
     <form method="post" action="/review/{{landlord.id}}" class="card"><label>Your rating</label><select name="rating" required><option value="5">  Excellent</option><option value="4">  Good</option><option value="3">  Okay</option><option value="2">  Poor</option><option value="1">  Very poor</option></select><label>Your comment</label><textarea name="comment" maxlength="1000" required placeholder="Share your experience..."></textarea><button class="btn">Post review</button></form>
     {% elif not me %}<p class="muted"><a href="/login">Log in as a tenant</a> to leave a review.</p>{% endif %}
     {% for r in reviews %}<div class="review"><div class="stars">{{'' * r.rating}}{{'' * (5-r.rating)}}</div><b>{{r.first_name}} {{r.surname}}</b><p class="muted">{{r.comment}}</p><span class="small">{{r.created_at}}</span></div>{% else %}<p class="muted">No reviews yet.</p>{% endfor %}
-    """, landlord=landlord, homes=homes, reviews=reviews, avg=avg, count=count)
+    """, landlord=landlord, homes=homes, reviews=reviews, avg=avg, count=count, report_count=report_count)
 
 @app.route("/review/<int:landlord_id>", methods=["POST"])
 @login_required
