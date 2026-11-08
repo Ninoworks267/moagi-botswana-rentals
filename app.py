@@ -183,7 +183,7 @@ def save_image(file):
 BASE = r"""
 <!DOCTYPE html><html lang="en"><head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>MOAGI — Find your space</title>
+<title>MOAGI - Find your space</title>
 <style>
 *{box-sizing:border-box}body{margin:0;background:#ffffff;color:#222222;font-family:"Segoe UI",Inter,system-ui,-apple-system,Roboto,Arial,sans-serif;font-size:16px;line-height:1.6}
 a{color:inherit}nav{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:18px 6%;border-bottom:1px solid #ebebeb;position:sticky;top:0;background:#ffffff;z-index:10;flex-wrap:wrap;box-shadow:0 1px 2px rgba(0,0,0,.08)}
@@ -200,12 +200,12 @@ input,select,textarea{width:100%;padding:13px;margin:7px 0 15px;background:#fff;
 @media(max-width:650px){nav{padding:15px 5%}.container{width:92%}.row{grid-template-columns:1fr}.hero{padding-top:35px}.message{max-width:92%}}
 
 </style></head><body>
-<div id="intro"><h1>MOAGI.</h1><p>EITA DAH! 👋</p></div>
+<div id="intro"><h1>MOAGI.</h1><p>EITA DAH! </p></div>
 <nav><a class="logo" href="/">MOAGI.</a><div class="links">
 <a href="/">Explore</a>{% if me %}<a href="/dashboard">Dashboard</a><a href="/inbox">Inbox</a><a href="/profile/edit">My profile</a><a href="/logout">Log out</a>{% else %}<a href="/login">Log in</a><a class="btn" href="/register">Join MOAGI</a>{% endif %}
 </div></nav><main class="container">
 {% with items=get_flashed_messages() %}{% for item in items %}<div class="flash">{{item}}</div>{% endfor %}{% endwith %}
-{{body|safe}}</main><footer>MOAGI · Find your space in Botswana 🇧🇼</footer>
+{{body|safe}}</main><footer>MOAGI - Find your space in Botswana</footer>
 <script>
 (function(){const intro=document.getElementById('intro');try{if(sessionStorage.getItem('moagi_welcomed')==='yes'){intro.classList.add('hidden')}else{sessionStorage.setItem('moagi_welcomed','yes')}}catch(e){}})();
 </script></body></html>
@@ -241,16 +241,35 @@ def home():
     return page("""
     <section class="hero"><div class="eyebrow">Botswana's home-finding space</div>
     <h1>Find a place<br>to call yours.</h1><p class="muted">Real homes. Real people. Your next chapter starts here.</p>
-    <a class="btn" href="/register">Get started</a> <a class="btn ghost" href="#homes">Explore homes</a></section>
+    <a class="btn" href="/register">Get started</a> <a class="btn ghost" href="#houses">Explore homes</a></section>
+
+    <h2>Sections</h2>
+    <div class="grid">
+        <a class="card" href="#houses" style="text-decoration:none"><h3>Houses</h3><p class="muted">Browse and search rental homes across Botswana.</p></a>
+        <a class="card" href="/inbox" style="text-decoration:none"><h3>Messages (DM)</h3><p class="muted">Private conversations with landlords and tenants.</p></a>
+        <a class="card" href="/report" style="text-decoration:none"><h3>Reports</h3><p class="muted">Report a concern privately to MOAGI admins.</p></a>
+        <a class="card" href="#help" style="text-decoration:none"><h3>Help</h3><p class="muted">How MOAGI works and how to get support.</p></a>
+    </div>
+
+    <h2 id="houses">Houses</h2>
     <form method="get" class="card"><div class="row"><div><label>Search homes</label><input name="q" value="{{search}}" placeholder="Apartment, family home..."></div>
     <div><label>Town / location</label><input name="location" value="{{location}}" placeholder="Gaborone, Francistown..."></div></div>
     <label>Minimum bedrooms</label><select name="bedrooms"><option value="">Any</option>{% for n in range(1,7) %}<option value="{{n}}" {% if bedrooms==n|string %}selected{% endif %}>{{n}}+</option>{% endfor %}</select>
     <button class="btn">Find homes</button></form>
-    <h2 id="homes">Homes to explore</h2><div class="grid">{% for p in homes %}
-    <article class="card">{% if p.photo %}{% set _fp = p.photo.split(',')[0].strip() %}<img src="{{_fp if _fp.startswith('http') else url_for('static',filename='uploads/'+_fp)}}" alt="Property photo">{% else %}<div style="height:185px;background:#222;border-radius:10px"></div>{% endif %}
+    <div class="grid">{% for p in homes %}
+    <article class="card">{% if p.photo %}{% set _fp = p.photo.split(',')[0].strip() %}<img src="{{_fp if _fp.startswith('http') else url_for('static',filename='uploads/'+_fp)}}" alt="Property photo">{% else %}<div style="height:185px;background:#f7f7f7;border-radius:10px"></div>{% endif %}
     <p class="tag">{{p.location}}</p><h3>{{p.title}}</h3><div class="price">P{{"{:,.0f}".format(p.price)}} <span class="small">/ month</span></div>
-    <p class="muted">{{p.bedrooms}} bedrooms · {{p.bathrooms}} bathrooms</p><p class="small">Listed by {{p.first_name}} {{p.surname}}</p><a class="btn" href="/property/{{p.id}}">View home</a></article>
+    <p class="muted">{{p.bedrooms}} bedrooms, {{p.bathrooms}} bathrooms</p><p class="small">Listed by {{p.first_name}} {{p.surname}}</p><a class="btn" href="/property/{{p.id}}">View home</a></article>
     {% else %}<p class="muted">No homes match that search yet. Try another location.</p>{% endfor %}</div>
+
+    <h2 id="messages">Messages (DM)</h2>
+    <div class="card"><p class="muted">Open your inbox to chat with landlords and tenants.</p><a class="btn" href="/inbox">Open inbox</a></div>
+
+    <h2 id="reports">Reports</h2>
+    <div class="card"><p class="muted">Report a concern privately to MOAGI administrators.</p><a class="btn" href="/report">Report a concern</a></div>
+
+    <h2 id="help">Help</h2>
+    <div class="card"><p class="muted">MOAGI connects landlords and tenants. Create an account, list or search homes, message landlords, and leave reviews. For support, contact the platform administrator.</p></div>
     """, homes=homes, search=search, location=location, bedrooms=bedrooms)
 
 @app.route("/register", methods=["GET","POST"])
@@ -306,9 +325,6 @@ def login():
     return page("""
     <h1>Welcome back.</h1><form method="post"><label>Email</label><input type="email" name="email" required>
     <label>Password</label><input type="password" name="password" required><button class="btn">Log in</button></form>
-    <div class="card"><h3>Demo accounts</h3><p>Landlord: <b>landlord@moagi.demo</b><br>Password: <b>DemoLandlord123!</b></p>
-    <p>Tenant: <b>tenant@moagi.demo</b><br>Password: <b>DemoTenant123!</b></p>
-    <p class="small">These are public demo accounts. Do not use them for private information.</p></div>
     """)
 
 @app.route("/logout")
@@ -364,7 +380,7 @@ def dashboard():
             </div>
             <div class="card">
                 <div class="price">{{stats.n}}</div>
-                <p class="muted">Tenant reviews · {{"%.1f"|format(stats.avg)}} / 5 stars</p>
+                <p class="muted">Tenant reviews: {{"%.1f"|format(stats.avg)}} / 5 stars</p>
             </div>
         </div>
 
@@ -378,7 +394,7 @@ def dashboard():
             {% for p in homes %}
             <div class="card">
                 <h3>{{p.title}}</h3>
-                <p class="muted">{{p.location}} · P{{"{:,.0f}".format(p.price)}} / month</p>
+                <p class="muted">{{p.location}}  P{{"{:,.0f}".format(p.price)}} / month</p>
                 <a href="/property/{{p.id}}">Open listing</a>
             </div>
             {% else %}
@@ -446,14 +462,14 @@ def landlord_profile(user_id):
     conn.close()
     return page("""
     <div class="profile-head">{% if landlord.profile_photo %}<img class="avatar" src="{{landlord.profile_photo if landlord.profile_photo.startswith('http') else url_for('static',filename='uploads/'+landlord.profile_photo)}}">{% else %}<div class="avatar"></div>{% endif %}
-    <div><div class="eyebrow">Landlord profile</div><h1>{{landlord.first_name}} {{landlord.surname}}</h1><p class="muted">{{landlord.location}} · {{'★' * (avg|round|int)}}{{'☆' * (5-(avg|round|int))}} {{'%.1f'|format(avg)}}/5 ({{count}} reviews)</p></div></div>
+    <div><div class="eyebrow">Landlord profile</div><h1>{{landlord.first_name}} {{landlord.surname}}</h1><p class="muted">{{landlord.location}}  {{'' * (avg|round|int)}}{{'' * (5-(avg|round|int))}} {{'%.1f'|format(avg)}}/5 ({{count}} reviews)</p></div></div>
     <p class="muted">{{landlord.bio or 'This landlord has not added a bio yet.'}}</p>
     {% if me and me.id != landlord.id %}<a class="btn" href="/chat/{{landlord.id}}">Message landlord</a>{% endif %}
-    <h2>Properties</h2><div class="grid">{% for p in homes %}<div class="card"><h3>{{p.title}}</h3><p class="muted">{{p.location}} · P{{"{:,.0f}".format(p.price)}} / month</p><a href="/property/{{p.id}}">View property</a></div>{% else %}<p class="muted">No properties listed yet.</p>{% endfor %}</div>
+    <h2>Properties</h2><div class="grid">{% for p in homes %}<div class="card"><h3>{{p.title}}</h3><p class="muted">{{p.location}}  P{{"{:,.0f}".format(p.price)}} / month</p><a href="/property/{{p.id}}">View property</a></div>{% else %}<p class="muted">No properties listed yet.</p>{% endfor %}</div>
     <hr><h2>Tenant reviews & comments</h2>{% if me and me.role=='tenant' and me.id != landlord.id %}
-    <form method="post" action="/review/{{landlord.id}}" class="card"><label>Your rating</label><select name="rating" required><option value="5">★★★★★ — Excellent</option><option value="4">★★★★ — Good</option><option value="3">★★★ — Okay</option><option value="2">★★ — Poor</option><option value="1">★ — Very poor</option></select><label>Your comment</label><textarea name="comment" maxlength="1000" required placeholder="Share your experience..."></textarea><button class="btn">Post review</button></form>
+    <form method="post" action="/review/{{landlord.id}}" class="card"><label>Your rating</label><select name="rating" required><option value="5">  Excellent</option><option value="4">  Good</option><option value="3">  Okay</option><option value="2">  Poor</option><option value="1">  Very poor</option></select><label>Your comment</label><textarea name="comment" maxlength="1000" required placeholder="Share your experience..."></textarea><button class="btn">Post review</button></form>
     {% elif not me %}<p class="muted"><a href="/login">Log in as a tenant</a> to leave a review.</p>{% endif %}
-    {% for r in reviews %}<div class="review"><div class="stars">{{'★' * r.rating}}{{'☆' * (5-r.rating)}}</div><b>{{r.first_name}} {{r.surname}}</b><p class="muted">{{r.comment}}</p><span class="small">{{r.created_at}}</span></div>{% else %}<p class="muted">No reviews yet.</p>{% endfor %}
+    {% for r in reviews %}<div class="review"><div class="stars">{{'' * r.rating}}{{'' * (5-r.rating)}}</div><b>{{r.first_name}} {{r.surname}}</b><p class="muted">{{r.comment}}</p><span class="small">{{r.created_at}}</span></div>{% else %}<p class="muted">No reviews yet.</p>{% endfor %}
     """, landlord=landlord, homes=homes, reviews=reviews, avg=avg, count=count)
 
 @app.route("/review/<int:landlord_id>", methods=["POST"])
@@ -603,7 +619,7 @@ def property_detail(property_id):
     }
     </style>
 
-    <p><a href="/" class="muted">← Back to explore homes</a></p>
+    <p><a href="/" class="muted">Back to explore homes</a></p>
 
     <div class="property-layout">
         <section>
@@ -630,8 +646,8 @@ def property_detail(property_id):
                 </div>
 
                 <div class="property-specs">
-                    <div class="property-spec">🛏 {{p.bedrooms}} Bedrooms</div>
-                    <div class="property-spec">🛁 {{p.bathrooms}} Bathrooms</div>
+                    <div class="property-spec">{{p.bedrooms}} Bedrooms</div>
+                    <div class="property-spec">{{p.bathrooms}} Bathrooms</div>
                 </div>
 
                 <hr style="border:0;border-top:1px solid #ebebeb">
@@ -662,7 +678,7 @@ def property_detail(property_id):
                 <div class="eyebrow">Listed by</div>
                 <h2>{{p.first_name}} {{p.surname}}</h2>
                 <p class="muted">{{p.landlord_location}}</p>
-                <a href="/landlord/{{p.landlord_id}}">View landlord profile →</a>
+                <a href="/landlord/{{p.landlord_id}}">View landlord profile</a>
             </div>
         </aside>
     </div>
@@ -717,7 +733,7 @@ def inbox():
     .dm-date{font-size:12px;color:#999;white-space:nowrap}
     </style>
 
-    <h1 class="dm-heading">💬 Your inbox</h1>
+    <h1 class="dm-heading">Your inbox</h1>
     <p class="muted">Your private MOAGI conversations.</p>
 
     {% for c in chats %}
@@ -737,7 +753,7 @@ def inbox():
     </a>
     {% else %}
         <div class="card">
-            <h3>👋 No conversations yet</h3>
+            <h3> No conversations yet</h3>
             <p class="muted">Explore properties and say hello to a landlord.</p>
             <a class="btn" href="/">Explore homes</a>
         </div>
@@ -830,7 +846,7 @@ def chat(other_id):
         border-radius:16px;min-height:65px}
     </style>
 
-    <h1>💬 Messages</h1>
+    <h1>Messages</h1>
 
     <div class="chat-header">
         {% if other.profile_photo %}
@@ -841,7 +857,7 @@ def chat(other_id):
         {% endif %}
         <div>
             <b>{{other.first_name}} {{other.surname}}</b>
-            <p class="muted" style="margin:4px 0">MOAGI member · Private conversation 🔒</p>
+            <p class="muted" style="margin:4px 0">MOAGI member - Private conversation</p>
         </div>
     </div>
 
@@ -864,27 +880,27 @@ def chat(other_id):
             </div>
         </div>
         {% else %}
-            <p class="muted">👋 Say hello and start the conversation!</p>
+            <p class="muted"> Say hello and start the conversation!</p>
         {% endfor %}
     </div>
 
     <div class="chat-composer">
         <div class="emoji-row">
-            <button type="button" class="emoji-button" onclick="addEmoji('😊')">😊</button>
-            <button type="button" class="emoji-button" onclick="addEmoji('👋')">👋</button>
-            <button type="button" class="emoji-button" onclick="addEmoji('â¤ï¸')">â¤ï¸</button>
-            <button type="button" class="emoji-button" onclick="addEmoji('😂')">😂</button>
-            <button type="button" class="emoji-button" onclick="addEmoji('ðŸ‘')">ðŸ‘</button>
-            <button type="button" class="emoji-button" onclick="addEmoji('ðŸ¡')">ðŸ¡</button>
-            <button type="button" class="emoji-button" onclick="addEmoji('ðŸ™')">ðŸ™</button>
+            <button type="button" class="emoji-button" onclick="addEmoji('')"></button>
+            <button type="button" class="emoji-button" onclick="addEmoji('')"></button>
+            <button type="button" class="emoji-button" onclick="addEmoji('')"></button>
+            <button type="button" class="emoji-button" onclick="addEmoji('')"></button>
+            <button type="button" class="emoji-button" onclick="addEmoji('')"></button>
+            <button type="button" class="emoji-button" onclick="addEmoji('')"></button>
+            <button type="button" class="emoji-button" onclick="addEmoji('')"></button>
         </div>
 
         <form method="post">
             <textarea id="chatMessage" class="chat-input"
-                name="message" placeholder="Write your message... âœï¸"
+                name="message" placeholder="Write your message... "
                 required maxlength="3000"></textarea>
             <button class="btn" style="width:100%;margin-top:9px">
-                Send message ➤
+                Send message
             </button>
         </form>
     </div>
@@ -1118,7 +1134,7 @@ def admin_reports():
 
     {% for r in reports %}
     <article class="card">
-        <h3>Report #{{r.id}} — {{r.category}}</h3>
+        <h3>Report #{{r.id}} - {{r.category}}</h3>
         <p><b>Type:</b> {{r.report_type}}</p>
         <p><b>Reported account:</b>
             {{r.target_first or "Not specified"}}
