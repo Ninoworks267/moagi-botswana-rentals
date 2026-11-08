@@ -236,21 +236,25 @@ def home():
     <h2>Ads</h2>
     <div class="ad-slideshow">
         <div class="ad-slide active">
+            <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=800&q=80" alt="Choppies" style="width:100%;height:180px;object-fit:cover;border-radius:8px;margin-bottom:10px">
             <h3>Choppies - Weekly Specials</h3>
             <p class="muted">Save big on groceries this week. Fresh produce, meat and household essentials at great prices.</p>
             <a class="btn" href="https://www.choppies.co.bw" target="_blank">Shop now</a>
         </div>
         <div class="ad-slide">
+            <img src="https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=800&q=80" alt="Spar" style="width:100%;height:180px;object-fit:cover;border-radius:8px;margin-bottom:10px">
             <h3>Spar Botswana - Fresh for Less</h3>
             <p class="muted">Quality groceries and fresh bakery items. Visit your nearest Spar today.</p>
             <a class="btn" href="https://www.spar.co.bw" target="_blank">Learn more</a>
         </div>
         <div class="ad-slide">
+            <img src="https://images.unsplash.com/photo-1473341304170-971dccb5ac1e?auto=format&fit=crop&w=800&q=80" alt="BPC" style="width:100%;height:180px;object-fit:cover;border-radius:8px;margin-bottom:10px">
             <h3>Botswana Power Corporation</h3>
             <p class="muted">Pay your electricity bill online. Quick, safe and convenient.</p>
             <a class="btn" href="https://www.bpc.bw" target="_blank">Pay now</a>
         </div>
         <div class="ad-slide">
+            <img src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=800&q=80" alt="Orange" style="width:100%;height:180px;object-fit:cover;border-radius:8px;margin-bottom:10px">
             <h3>Orange Botswana - More Data</h3>
             <p class="muted">Get more data for less. New prepaid bundles available now.</p>
             <a class="btn" href="https://www.orange.co.bw" target="_blank">See bundles</a>
