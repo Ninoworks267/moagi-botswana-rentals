@@ -74,6 +74,13 @@ def init_db():
         conn.execute("ALTER TABLE users ADD COLUMN bio TEXT")
     if "created_at" not in user_cols:
         conn.execute("ALTER TABLE users ADD COLUMN created_at TIMESTAMP")
+    prop_cols = columns(conn, "properties")
+    if "tenant_gender_pref" not in prop_cols:
+        conn.execute("ALTER TABLE properties ADD COLUMN tenant_gender_pref TEXT DEFAULT 'Any'")
+    if "rent_share" not in prop_cols:
+        conn.execute("ALTER TABLE properties ADD COLUMN rent_share TEXT DEFAULT 'No'")
+    if "bill_split" not in prop_cols:
+        conn.execute("ALTER TABLE properties ADD COLUMN bill_split TEXT")
     conn.execute("""
         CREATE TABLE IF NOT EXISTS reviews (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -258,6 +265,24 @@ def home():
             <h3>Orange Botswana - More Data</h3>
             <p class="muted">Get more data for less. New prepaid bundles available now.</p>
             <a class="btn" href="https://www.orange.co.bw" target="_blank">See bundles</a>
+        </div>
+        <div class="ad-slide">
+            <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=800&q=80" alt="Mascom" style="width:100%;height:180px;object-fit:cover;border-radius:8px;margin-bottom:10px">
+            <h3>Mascom - Network for Everyone</h3>
+            <p class="muted">Reliable mobile and internet services across Botswana.</p>
+            <a class="btn" href="https://www.mascom.bw" target="_blank">Explore</a>
+        </div>
+        <div class="ad-slide">
+            <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=800&q=80" alt="Restaurant" style="width:100%;height:180px;object-fit:cover;border-radius:8px;margin-bottom:10px">
+            <h3>Nandos Botswana - Flame Grilled</h3>
+            <p class="muted">Peri-peri chicken and family meals. Dine in or takeaway.</p>
+            <a class="btn" href="https://www.nandos.co.bw" target="_blank">Order now</a>
+        </div>
+        <div class="ad-slide">
+            <img src="https://images.unsplash.com/photo-1563013544-824ae1b704d3?auto=format&fit=crop&w=800&q=80" alt="Bank" style="width:100%;height:180px;object-fit:cover;border-radius:8px;margin-bottom:10px">
+            <h3>FNB Botswana - Easy Banking</h3>
+            <p class="muted">Open an account online and bank from anywhere.</p>
+            <a class="btn" href="https://www.fnb.co.bw" target="_blank">Open account</a>
         </div>
     </div>
     <script>
@@ -550,8 +575,11 @@ def add_property():
             flash("Please complete all property details with a valid rent amount.")
         else:
             conn = db()
-            conn.execute("""INSERT INTO properties (landlord_id,title,location,price,bedrooms,bathrooms,description,photo)
-                VALUES (?,?,?,?,?,?,?,?)""",(me["id"],title,location,price,beds,baths,description,photo))
+            tgp = f.get("tenant_gender_pref","Any")
+            rs = f.get("rent_share","No")
+            bs = f.get("bill_split","").strip()
+            conn.execute("""INSERT INTO properties (landlord_id,title,location,price,bedrooms,bathrooms,description,photo,tenant_gender_pref,rent_share,bill_split)
+                VALUES (?,?,?,?,?,?,?,?,?,?,?)""",(me["id"],title,location,price,beds,baths,description,photo,tgp,rs,bs))
             conn.commit(); conn.close()
             flash("Your property is now listed.")
             return redirect(url_for("dashboard"))
@@ -563,6 +591,9 @@ def add_property():
     <label>Bathrooms</label><input type="number" name="bathrooms" min="0" required>
     <label>Description</label><textarea name="description" required></textarea>
     <label>Property photos (optional; JPG, PNG or WEBP; select multiple rooms)</label><input type="file" name="photo" accept=".jpg,.jpeg,.png,.webp" multiple>
+    <label>Preferred tenant gender</label><select name="tenant_gender_pref"><option>Any</option><option>Female only</option><option>Male only</option></select>
+    <label>Looking to share rent?</label><select name="rent_share"><option>No</option><option>Yes - room available</option></select>
+    <label>Bill splitting details (if sharing)</label><textarea name="bill_split" placeholder="e.g. Split electricity and water equally; rent P2500 each"></textarea>
     <button class="btn">Publish listing</button></form>
     """)
 
@@ -678,7 +709,14 @@ def property_detail(property_id):
                 <div class="property-specs">
                     <div class="property-spec">{{p.bedrooms}} Bedrooms</div>
                     <div class="property-spec">{{p.bathrooms}} Bathrooms</div>
+                    <div class="property-spec">Tenant: {{p.tenant_gender_pref or 'Any'}}</div>
+                    {% if p.rent_share and p.rent_share.startswith('Yes') %}
+                    <div class="property-spec">Rent sharing available</div>
+                    {% endif %}
                 </div>
+                {% if p.bill_split %}
+                <p class="muted"><b>Bill split:</b> {{p.bill_split}}</p>
+                {% endif %}
 
                 <hr style="border:0;border-top:1px solid #ebebeb">
                 <h2>About this property</h2>
