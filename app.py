@@ -198,11 +198,12 @@ input,select,textarea{width:100%;padding:13px;margin:7px 0 15px;background:#fff;
 #intro h1{font-size:clamp(48px,10vw,90px);margin:8px;animation:pop .8s ease both;color:#222}#intro p{color:#717171;letter-spacing:3px;animation:pop 1s ease .25s both}
 #intro.hidden{display:none}@keyframes pop{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:scale(1)}}@keyframes introOut{to{opacity:0;visibility:hidden}}@keyframes slideUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
 @media(max-width:650px){nav{padding:15px 5%}.container{width:92%}.row{grid-template-columns:1fr}.hero{padding-top:35px}.message{max-width:92%}}
+.ad-slideshow{position:relative;min-height:160px}.ad-slide{display:none;padding:20px;border:1px solid #ebebeb;border-radius:12px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.08)}.ad-slide.active{display:block;animation:slideUp .5s ease both}
 
 </style></head><body>
 <div id="intro"><h1>MOAGI.</h1><p>EITA DAH! </p></div>
 <nav><a class="logo" href="/">MOAGI.</a><div class="links">
-<a href="/">Explore</a>{% if me %}<a href="/dashboard">Dashboard</a><a href="/inbox">Inbox</a><a href="/profile/edit">My profile</a><a href="/logout">Log out</a>{% else %}<a href="/login">Log in</a><a class="btn" href="/register">Join MOAGI</a>{% endif %}
+<a href="/houses">Houses</a>{% if me %}<a href="/dashboard">Dashboard</a><a href="/inbox">Inbox</a><a href="/profile/edit">My profile</a><a href="/logout">Log out</a>{% else %}<a href="/login">Log in</a><a class="btn" href="/register">Join MOAGI</a>{% endif %}
 </div></nav><main class="container">
 {% with items=get_flashed_messages() %}{% for item in items %}<div class="flash">{{item}}</div>{% endfor %}{% endwith %}
 {{body|safe}}</main><footer>MOAGI - Find your space in Botswana</footer>
@@ -219,6 +220,52 @@ def page(template, **data):
 
 @app.route("/")
 def home():
+    return page("""
+    <section class="hero"><div class="eyebrow">Botswana's home-finding space</div>
+    <h1>Find a place<br>to call yours.</h1><p class="muted">Real homes. Real people. Your next chapter starts here.</p>
+    <a class="btn" href="/register">Get started</a> <a class="btn ghost" href="/houses">Explore homes</a></section>
+
+    <h2>Sections</h2>
+    <div class="grid">
+        <a class="card" href="/houses" style="text-decoration:none"><h3>Houses</h3><p class="muted">Browse and search rental homes across Botswana.</p></a>
+        <a class="card" href="/inbox" style="text-decoration:none"><h3>Messages (DM)</h3><p class="muted">Private conversations with landlords and tenants.</p></a>
+        <a class="card" href="/report" style="text-decoration:none"><h3>Reports</h3><p class="muted">Report a concern privately to MOAGI admins.</p></a>
+        <a class="card" href="#help" style="text-decoration:none"><h3>Help</h3><p class="muted">How MOAGI works and how to get support.</p></a>
+    </div>
+
+    <h2>Ads</h2>
+    <div class="ad-slideshow">
+        <div class="ad-slide active">
+            <h3>Choppies - Weekly Specials</h3>
+            <p class="muted">Save big on groceries this week. Fresh produce, meat and household essentials at great prices.</p>
+            <a class="btn" href="https://www.choppies.co.bw" target="_blank">Shop now</a>
+        </div>
+        <div class="ad-slide">
+            <h3>Spar Botswana - Fresh for Less</h3>
+            <p class="muted">Quality groceries and fresh bakery items. Visit your nearest Spar today.</p>
+            <a class="btn" href="https://www.spar.co.bw" target="_blank">Learn more</a>
+        </div>
+        <div class="ad-slide">
+            <h3>Botswana Power Corporation</h3>
+            <p class="muted">Pay your electricity bill online. Quick, safe and convenient.</p>
+            <a class="btn" href="https://www.bpc.bw" target="_blank">Pay now</a>
+        </div>
+        <div class="ad-slide">
+            <h3>Orange Botswana - More Data</h3>
+            <p class="muted">Get more data for less. New prepaid bundles available now.</p>
+            <a class="btn" href="https://www.orange.co.bw" target="_blank">See bundles</a>
+        </div>
+    </div>
+    <script>
+    (function(){var s=document.querySelectorAll('.ad-slide');var i=0;setInterval(function(){s[i].classList.remove('active');i=(i+1)%s.length;s[i].classList.add('active');},4000);})();
+    </script>
+
+    <h2 id="help">Help</h2>
+    <div class="card"><p class="muted">MOAGI connects landlords and tenants. Create an account, list or search homes, message landlords, and leave reviews. For support, contact the platform administrator.</p></div>
+    """)
+
+@app.route("/houses")
+def houses():
     search = request.args.get("q", "").strip()
     location = request.args.get("location", "").strip()
     bedrooms = request.args.get("bedrooms", "").strip()
@@ -239,19 +286,7 @@ def home():
     homes = conn.execute(sql, args).fetchall()
     conn.close()
     return page("""
-    <section class="hero"><div class="eyebrow">Botswana's home-finding space</div>
-    <h1>Find a place<br>to call yours.</h1><p class="muted">Real homes. Real people. Your next chapter starts here.</p>
-    <a class="btn" href="/register">Get started</a> <a class="btn ghost" href="#houses">Explore homes</a></section>
-
-    <h2>Sections</h2>
-    <div class="grid">
-        <a class="card" href="#houses" style="text-decoration:none"><h3>Houses</h3><p class="muted">Browse and search rental homes across Botswana.</p></a>
-        <a class="card" href="/inbox" style="text-decoration:none"><h3>Messages (DM)</h3><p class="muted">Private conversations with landlords and tenants.</p></a>
-        <a class="card" href="/report" style="text-decoration:none"><h3>Reports</h3><p class="muted">Report a concern privately to MOAGI admins.</p></a>
-        <a class="card" href="#help" style="text-decoration:none"><h3>Help</h3><p class="muted">How MOAGI works and how to get support.</p></a>
-    </div>
-
-    <h2 id="houses">Houses</h2>
+    <h1>Houses</h1>
     <form method="get" class="card"><div class="row"><div><label>Search homes</label><input name="q" value="{{search}}" placeholder="Apartment, family home..."></div>
     <div><label>Town / location</label><input name="location" value="{{location}}" placeholder="Gaborone, Francistown..."></div></div>
     <label>Minimum bedrooms</label><select name="bedrooms"><option value="">Any</option>{% for n in range(1,7) %}<option value="{{n}}" {% if bedrooms==n|string %}selected{% endif %}>{{n}}+</option>{% endfor %}</select>
@@ -261,15 +296,6 @@ def home():
     <p class="tag">{{p.location}}</p><h3>{{p.title}}</h3><div class="price">P{{"{:,.0f}".format(p.price)}} <span class="small">/ month</span></div>
     <p class="muted">{{p.bedrooms}} bedrooms, {{p.bathrooms}} bathrooms</p><p class="small">Listed by {{p.first_name}} {{p.surname}}</p><a class="btn" href="/property/{{p.id}}">View home</a></article>
     {% else %}<p class="muted">No homes match that search yet. Try another location.</p>{% endfor %}</div>
-
-    <h2 id="messages">Messages (DM)</h2>
-    <div class="card"><p class="muted">Open your inbox to chat with landlords and tenants.</p><a class="btn" href="/inbox">Open inbox</a></div>
-
-    <h2 id="reports">Reports</h2>
-    <div class="card"><p class="muted">Report a concern privately to MOAGI administrators.</p><a class="btn" href="/report">Report a concern</a></div>
-
-    <h2 id="help">Help</h2>
-    <div class="card"><p class="muted">MOAGI connects landlords and tenants. Create an account, list or search homes, message landlords, and leave reviews. For support, contact the platform administrator.</p></div>
     """, homes=homes, search=search, location=location, bedrooms=bedrooms)
 
 @app.route("/register", methods=["GET","POST"])
