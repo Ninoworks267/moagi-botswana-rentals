@@ -124,13 +124,13 @@ def seed_demo(conn):
                 VALUES (?,?,?,?,?,?,?,?)""",
                 (landlord["id"], "Modern 2-bedroom apartment", "Gaborone, Block 8", 4500, 2, 1,
                  "A bright, comfortable apartment close to shops and transport. Contact me to arrange a viewing.",
-                 "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1000&q=85"))
+                 "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1000&q=85,https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1000&q=85,https://images.unsplash.com/photo-1493809842364-78817add7cfa?auto=format&fit=crop&w=1000&q=85"))
             conn.execute("""INSERT INTO properties
                 (landlord_id,title,location,price,bedrooms,bathrooms,description,photo)
                 VALUES (?,?,?,?,?,?,?,?)""",
                 (landlord["id"], "Cosy family home", "Gaborone, Broadhurst", 6500, 3, 2,
                  "Spacious home with a relaxed living area and a small garden.",
-                 "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1000&q=85"))
+                 "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1000&q=85,https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?auto=format&fit=crop&w=1000&q=85,https://images.unsplash.com/photo-1600573472592-401b489a3cdc?auto=format&fit=crop&w=1000&q=85"))
     if second:
         count = conn.execute("SELECT COUNT(*) FROM properties WHERE landlord_id=?", (second["id"],)).fetchone()[0]
         if count == 0:
@@ -139,7 +139,7 @@ def seed_demo(conn):
                 VALUES (?,?,?,?,?,?,?,?)""",
                 (second["id"], "Francistown starter home", "Francistown, Area W", 3200, 2, 1,
                  "A neat starter home in a convenient location.",
-                 "https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?auto=format&fit=crop&w=1000&q=85"))
+                 "https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?auto=format&fit=crop&w=1000&q=85,https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1000&q=85,https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=1000&q=85"))
     if landlord and tenant:
         has_review = conn.execute("SELECT id FROM reviews WHERE landlord_id=? AND tenant_id=?",
                                   (landlord["id"], tenant["id"])).fetchone()
@@ -185,7 +185,7 @@ BASE = r"""
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MOAGI — Find your space</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#080808;color:#f7f7f7;font-family:Arial,sans-serif}
+*{box-sizing:border-box}body{margin:0;background:#080808;color:#f7f7f7;font-family:"Segoe UI",Inter,system-ui,-apple-system,Roboto,Arial,sans-serif;font-size:17px;line-height:1.65}
 a{color:inherit}nav{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:18px 6%;border-bottom:1px solid #292929;position:sticky;top:0;background:#080808;z-index:10;flex-wrap:wrap}
 .logo{font-size:27px;font-weight:900;letter-spacing:2px;text-decoration:none}nav .links{display:flex;gap:16px;align-items:center;flex-wrap:wrap}nav a{text-decoration:none;font-size:14px;color:#ddd}nav a:hover{color:#fff}
 .container{width:90%;max-width:1120px;margin:32px auto}.hero{padding:55px 0 35px;animation:slideUp .65s ease both}.hero h1{font-size:clamp(40px,7vw,76px);letter-spacing:-3px;margin:8px 0}.muted{color:#aaa;line-height:1.6}.eyebrow{color:#aaa;letter-spacing:3px;text-transform:uppercase;font-size:11px}
@@ -293,6 +293,11 @@ footer {
     border-top: 1px solid #202c39;
     margin-top: 65px;
 }
+h1,h2,h3 { font-weight: 800; letter-spacing: -.3px; }
+h1 { font-size: clamp(30px, 5vw, 46px); }
+h2 { font-size: 26px; }
+h3 { font-size: 21px; }
+p,li { font-size: 17px; line-height: 1.7; }
 @media(max-width:650px) {
     .hero {
         padding: 45px 22px;
@@ -354,7 +359,7 @@ def home():
     <label>Minimum bedrooms</label><select name="bedrooms"><option value="">Any</option>{% for n in range(1,7) %}<option value="{{n}}" {% if bedrooms==n|string %}selected{% endif %}>{{n}}+</option>{% endfor %}</select>
     <button class="btn">Find homes</button></form>
     <h2 id="homes">Homes to explore</h2><div class="grid">{% for p in homes %}
-    <article class="card">{% if p.photo %}<img src="{{p.photo if p.photo.startswith('http') else url_for('static',filename='uploads/'+p.photo)}}" alt="Property photo">{% else %}<div style="height:185px;background:#222;border-radius:10px"></div>{% endif %}
+    <article class="card">{% if p.photo %}{% set _fp = p.photo.split(',')[0].strip() %}<img src="{{_fp if _fp.startswith('http') else url_for('static',filename='uploads/'+_fp)}}" alt="Property photo">{% else %}<div style="height:185px;background:#222;border-radius:10px"></div>{% endif %}
     <p class="tag">{{p.location}}</p><h3>{{p.title}}</h3><div class="price">P{{"{:,.0f}".format(p.price)}} <span class="small">/ month</span></div>
     <p class="muted">{{p.bedrooms}} bedrooms · {{p.bathrooms}} bathrooms</p><p class="small">Listed by {{p.first_name}} {{p.surname}}</p><a class="btn" href="/property/{{p.id}}">View home</a></article>
     {% else %}<p class="muted">No homes match that search yet. Try another location.</p>{% endfor %}</div>
@@ -598,7 +603,12 @@ def add_property():
         f = request.form
         try:
             price = float(f.get("price","0")); beds = int(f.get("bedrooms","0")); baths = int(f.get("bathrooms","0"))
-            photo = save_image(request.files.get("photo"))
+            photos = []
+            for upload in request.files.getlist("photo"):
+                name = save_image(upload)
+                if name:
+                    photos.append(name)
+            photo = ",".join(photos) if photos else None
         except (ValueError, TypeError) as e:
             flash(str(e) or "Check the price and room numbers."); return redirect(url_for("add_property"))
         title, location, description = f.get("title","").strip(), f.get("location","").strip(), f.get("description","").strip()
@@ -618,7 +628,7 @@ def add_property():
     <div class="row"><div><label>Monthly rent (BWP)</label><input type="number" name="price" min="1" step="1" required></div><div><label>Bedrooms</label><input type="number" name="bedrooms" min="0" required></div></div>
     <label>Bathrooms</label><input type="number" name="bathrooms" min="0" required>
     <label>Description</label><textarea name="description" required></textarea>
-    <label>Property photo (optional; JPG, PNG or WEBP)</label><input type="file" name="photo" accept=".jpg,.jpeg,.png,.webp">
+    <label>Property photos (optional; JPG, PNG or WEBP; select multiple rooms)</label><input type="file" name="photo" accept=".jpg,.jpeg,.png,.webp" multiple>
     <button class="btn">Publish listing</button></form>
     """)
 
@@ -710,9 +720,14 @@ def property_detail(property_id):
     <div class="property-layout">
         <section>
             {% if p.photo %}
-                <img class="property-photo"
-                src="{{p.photo if p.photo.startswith('http') else url_for('static',filename='uploads/'+p.photo)}}"
-                alt="{{p.title}}">
+                {% for ph in p.photo.split(',') %}
+                    {% set ph = ph.strip() %}
+                    {% if ph %}
+                        <img class="property-photo"
+                        src="{{ph if ph.startswith('http') else url_for('static',filename='uploads/'+ph)}}"
+                        alt="{{p.title}} - room {{loop.index}}" style="margin-bottom:14px">
+                    {% endif %}
+                {% endfor %}
             {% else %}
                 <div class="property-placeholder">Property photo unavailable</div>
             {% endif %}
