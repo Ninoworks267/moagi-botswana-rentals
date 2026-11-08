@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: moagi
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: MOAGI_SECRET
+        generateValue: true
+      - key: PYTHON_VERSION
+        value: 3.11.0
