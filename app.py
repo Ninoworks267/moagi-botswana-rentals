@@ -81,6 +81,32 @@ def init_db():
         conn.execute("ALTER TABLE properties ADD COLUMN rent_share TEXT DEFAULT 'No'")
     if "bill_split" not in prop_cols:
         conn.execute("ALTER TABLE properties ADD COLUMN bill_split TEXT")
+    if "yard_size" not in prop_cols:
+        conn.execute("ALTER TABLE properties ADD COLUMN yard_size TEXT")
+    if "parking" not in prop_cols:
+        conn.execute("ALTER TABLE properties ADD COLUMN parking TEXT")
+    if "fencing" not in prop_cols:
+        conn.execute("ALTER TABLE properties ADD COLUMN fencing TEXT")
+    if "house_rules" not in prop_cols:
+        conn.execute("ALTER TABLE properties ADD COLUMN house_rules TEXT")
+    if "preferred_tenant" not in prop_cols:
+        conn.execute("ALTER TABLE properties ADD COLUMN preferred_tenant TEXT")
+    if "electricity_meter" not in prop_cols:
+        conn.execute("ALTER TABLE properties ADD COLUMN electricity_meter TEXT")
+    if "water_billing" not in prop_cols:
+        conn.execute("ALTER TABLE properties ADD COLUMN water_billing TEXT")
+    if "water_amount" not in prop_cols:
+        conn.execute("ALTER TABLE properties ADD COLUMN water_amount REAL")
+    if "water_backup" not in prop_cols:
+        conn.execute("ALTER TABLE properties ADD COLUMN water_backup INTEGER DEFAULT 0")
+    if "deposit_terms" not in prop_cols:
+        conn.execute("ALTER TABLE properties ADD COLUMN deposit_terms TEXT")
+    # landlord profile fields
+    user_cols = columns(conn, "users")
+    if "deposit_refund_days" not in user_cols:
+        conn.execute("ALTER TABLE users ADD COLUMN deposit_refund_days INTEGER")
+    if "response_rate" not in user_cols:
+        conn.execute("ALTER TABLE users ADD COLUMN response_rate REAL")
     conn.execute("""
         CREATE TABLE IF NOT EXISTS reviews (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -618,6 +644,8 @@ def landlord_profile(user_id):
     <div class="profile-head">{% if landlord.profile_photo %}<img class="avatar" src="{{landlord.profile_photo if landlord.profile_photo.startswith('http') else url_for('static',filename='uploads/'+landlord.profile_photo)}}">{% else %}<div class="avatar"></div>{% endif %}
     <div><div class="eyebrow">Landlord profile</div><h1>{{landlord.first_name}} {{landlord.surname}}</h1><p class="muted">{{landlord.location}}  {{'' * (avg|round|int)}}{{'' * (5-(avg|round|int))}} {{'%.1f'|format(avg)}}/5 ({{count}} reviews)</p></div></div>
     <p class="muted">{{landlord.bio or 'This landlord has not added a bio yet.'}}</p>
+    {% if landlord.deposit_refund_days %}<p class="muted"><b>Avg. deposit refund:</b> {{landlord.deposit_refund_days}} days</p>{% endif %}
+    {% if landlord.response_rate %}<p class="muted"><b>Response rate:</b> {{landlord.response_rate}}%</p>{% endif %}
     {% if report_count and report_count > 0 %}<div class="flash">This landlord has {{report_count}} report(s) submitted by tenants. Review carefully before proceeding.</div>{% endif %}
     {% if me and me.id != landlord.id %}<a class="btn" href="/chat/{{landlord.id}}">Message landlord</a>{% endif %}
     <h2>Properties</h2><div class="grid">{% for p in homes %}<div class="card"><h3>{{p.title}}</h3><p class="muted">{{p.location}}  P{{"{:,.0f}".format(p.price)}} / month</p><a href="/property/{{p.id}}">View property</a></div>{% else %}<p class="muted">No properties listed yet.</p>{% endfor %}</div>
@@ -678,8 +706,22 @@ def add_property():
             tgp = f.get("tenant_gender_pref","Any")
             rs = f.get("rent_share","No")
             bs = f.get("bill_split","").strip()
-            conn.execute("""INSERT INTO properties (landlord_id,title,location,price,bedrooms,bathrooms,description,photo,tenant_gender_pref,rent_share,bill_split)
-                VALUES (?,?,?,?,?,?,?,?,?,?,?)""",(me["id"],title,location,price,beds,baths,description,photo,tgp,rs,bs))
+            yard = f.get("yard_size","").strip()
+            parking = f.get("parking","").strip()
+            fencing = f.get("fencing","").strip()
+            rules = f.get("house_rules","").strip()
+            pref = f.get("preferred_tenant","").strip()
+            emeter = f.get("electricity_meter","").strip()
+            wbilling = f.get("water_billing","").strip()
+            wamount = f.get("water_amount","").strip()
+            wbackup = 1 if f.get("water_backup") else 0
+            dterms = f.get("deposit_terms","").strip()
+            try:
+                wamount = float(wamount) if wamount else None
+            except ValueError:
+                wamount = None
+            conn.execute("""INSERT INTO properties (landlord_id,title,location,price,bedrooms,bathrooms,description,photo,tenant_gender_pref,rent_share,bill_split,yard_size,parking,fencing,house_rules,preferred_tenant,electricity_meter,water_billing,water_amount,water_backup,deposit_terms)
+                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",(me["id"],title,location,price,beds,baths,description,photo,tgp,rs,bs,yard,parking,fencing,rules,pref,emeter,wbilling,wamount,wbackup,dterms))
             conn.commit(); conn.close()
             flash("Your property is now listed.")
             return redirect(url_for("dashboard"))
@@ -694,6 +736,18 @@ def add_property():
     <label>Preferred tenant gender</label><select name="tenant_gender_pref"><option>Any</option><option>Female only</option><option>Male only</option></select>
     <label>Looking to share rent?</label><select name="rent_share"><option>No</option><option>Yes - room available</option></select>
     <label>Bill splitting details (if sharing)</label><textarea name="bill_split" placeholder="e.g. Split electricity and water equally; rent P2500 each"></textarea>
+    <h3>Yard & Outdoor</h3>
+    <label>Yard size</label><select name="yard_size"><option>Small plot</option><option>Paved yard</option><option>Large grassy yard</option><option>No yard</option></select>
+    <label>Fencing</label><select name="fencing"><option>Wall</option><option>Electric fence</option><option>Mesh</option><option>None</option></select>
+    <label>Parking</label><input name="parking" placeholder="e.g. Covered carport, 2 bays">
+    <label>House rules</label><textarea name="house_rules" placeholder="Visitor policy, noise, subletting, maintenance..."></textarea>
+    <label>Preferred tenant type</label><select name="preferred_tenant"><option>Any</option><option>Singles</option><option>Families</option><option>Working professionals</option><option>Students</option></select>
+    <h3>Utilities (Botswana)</h3>
+    <label>Electricity meter type</label><select name="electricity_meter"><option>BPC Prepaid (Smarten/Hexing)</option><option>Orange token meter</option><option>Post-paid BPC</option><option>Shared meter</option></select>
+    <label>Water billing</label><select name="water_billing"><option>Individual WUC meter</option><option>Fixed monthly fee</option><option>Shared split</option><option>Included in rent</option><option>Borehole</option></select>
+    <label>Water fixed amount (BWP)</label><input type="number" name="water_amount" min="0" step="1">
+    <label><input type="checkbox" name="water_backup" value="1"> Water backup tank (Jojo) available</label>
+    <label>Deposit terms</label><input name="deposit_terms" placeholder="e.g. 1 month deposit + 1st month rent">
     <button class="btn">Publish listing</button></form>
     """)
 
@@ -817,6 +871,15 @@ def property_detail(property_id):
                 {% if p.bill_split %}
                 <p class="muted"><b>Bill split:</b> {{p.bill_split}}</p>
                 {% endif %}
+                <div class="card" style="margin-top:15px">
+                    <h3>Property highlights</h3>
+                    <p class="muted"><b>Yard:</b> {{p.yard_size or 'N/A'}} | <b>Fencing:</b> {{p.fencing or 'N/A'}} | <b>Parking:</b> {{p.parking or 'N/A'}}</p>
+                    <p class="muted"><b>Preferred tenant:</b> {{p.preferred_tenant or 'Any'}}</p>
+                    <p class="muted"><b>House rules:</b> {{p.house_rules or 'Not specified'}}</p>
+                    <p class="muted"><b>Electricity:</b> {{p.electricity_meter or 'N/A'}}</p>
+                    <p class="muted"><b>Water:</b> {{p.water_billing or 'N/A'}}{% if p.water_amount %} (P{{p.water_amount}}){% endif %}{% if p.water_backup %} | Backup tank available{% endif %}</p>
+                    <p class="muted"><b>Deposit terms:</b> {{p.deposit_terms or 'Not specified'}}</p>
+                </div>
 
                 <hr style="border:0;border-top:1px solid #ebebeb">
                 <h2>About this property</h2>
