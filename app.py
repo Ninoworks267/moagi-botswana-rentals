@@ -109,6 +109,8 @@ def init_db():
         conn.execute("ALTER TABLE properties ADD COLUMN combi_distance TEXT")
     if "road_type" not in prop_cols:
         conn.execute("ALTER TABLE properties ADD COLUMN road_type TEXT")
+    if "landlord_notes" not in prop_cols:
+        conn.execute("ALTER TABLE properties ADD COLUMN landlord_notes TEXT")
     # landlord profile fields
     user_cols = columns(conn, "users")
     if "deposit_refund_days" not in user_cols:
@@ -147,6 +149,16 @@ def init_db():
             description TEXT NOT NULL,
             rating REAL DEFAULT 4.5,
             reviews TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS listing_comments (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            property_id INTEGER NOT NULL,
+            author_id INTEGER NOT NULL,
+            content TEXT NOT NULL,
+            is_landlord_reply INTEGER DEFAULT 0,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
@@ -428,10 +440,29 @@ def stays():
         <div class="price">P{{"{:,.0f}".format(s.price)}} <span class="small">/ night</span></div>
         <p class="muted">{{s.description}}</p>
         <p class="small">Rating: {{s.rating}}/5 - {{s.reviews}}</p>
-        <a class="btn" href="/pay?item={{s.title}}&amount={{s.price}}">Book & Pay</a>
+        <a class="btn" href="/stay/{{s.id}}">View details</a> <a class="btn ghost" href="/pay?item={{s.title}}&amount={{s.price}}">Book & Pay</a>
     </article>
     {% else %}<p class="muted">No stays found.</p>{% endfor %}</div>
     """, stays=rows)
+
+@app.route("/stay/<int:stay_id>")
+def stay_detail(stay_id):
+    conn = db()
+    s = conn.execute("SELECT * FROM stays WHERE id=?",(stay_id,)).fetchone()
+    conn.close()
+    if not s: abort(404)
+    return page("""
+    <p><a href="/stays" class="muted">Back to stays</a></p>
+    {% if s.photo %}<img src="{{s.photo}}" alt="{{s.title}}" style="width:100%;max-height:420px;object-fit:cover;border-radius:12px;margin-bottom:15px">{% endif %}
+    <div class="card">
+        <p class="tag">{{s.stay_type}} - {{s.location}}</p>
+        <h1>{{s.title}}</h1>
+        <div class="price">P{{"{:,.0f}".format(s.price)}} <span class="small">/ night</span></div>
+        <p class="muted">{{s.description}}</p>
+        <p class="small">Rating: {{s.rating}}/5 - {{s.reviews}}</p>
+        <a class="btn" href="/pay?item={{s.title}}&amount={{s.price}}">Book & Pay</a>
+    </div>
+    """, s=s)
 
 @app.route("/pay", methods=["GET","POST"])
 def pay():
@@ -741,12 +772,13 @@ def add_property():
             sdist = f.get("shop_distance","").strip()
             cdist = f.get("combi_distance","").strip()
             rtype = f.get("road_type","").strip()
+            lnotes = f.get("landlord_notes","").strip()
             try:
                 wamount = float(wamount) if wamount else None
             except ValueError:
                 wamount = None
-            conn.execute("""INSERT INTO properties (landlord_id,title,location,price,bedrooms,bathrooms,description,photo,tenant_gender_pref,rent_share,bill_split,yard_size,parking,fencing,house_rules,preferred_tenant,electricity_meter,water_billing,water_amount,water_backup,deposit_terms,nearest_shop,shop_distance,combi_distance,road_type)
-                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",(me["id"],title,location,price,beds,baths,description,photo,tgp,rs,bs,yard,parking,fencing,rules,pref,emeter,wbilling,wamount,wbackup,dterms,nshop,sdist,cdist,rtype))
+            conn.execute("""INSERT INTO properties (landlord_id,title,location,price,bedrooms,bathrooms,description,photo,tenant_gender_pref,rent_share,bill_split,yard_size,parking,fencing,house_rules,preferred_tenant,electricity_meter,water_billing,water_amount,water_backup,deposit_terms,nearest_shop,shop_distance,combi_distance,road_type,landlord_notes)
+                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",(me["id"],title,location,price,beds,baths,description,photo,tgp,rs,bs,yard,parking,fencing,rules,pref,emeter,wbilling,wamount,wbackup,dterms,nshop,sdist,cdist,rtype,lnotes))
             conn.commit(); conn.close()
             flash("Your property is now listed.")
             return redirect(url_for("dashboard"))
@@ -778,6 +810,7 @@ def add_property():
     <label>Distance to supermarket</label><input name="shop_distance" placeholder="e.g. 400m (5 min walk)">
     <label>Distance to combi stop</label><input name="combi_distance" placeholder="e.g. 200m">
     <label>Road type</label><select name="road_type"><option>Tarmac</option><option>Paved</option><option>Dirt/Gravel</option></select>
+    <label>Landlord notes / comments on this property</label><textarea name="landlord_notes" placeholder="Extra details, highlights, neighbourhood comments..."></textarea>
     <button class="btn">Publish listing</button></form>
     """)
 
@@ -786,6 +819,8 @@ def property_detail(property_id):
     conn = db()
     p = conn.execute("""SELECT p.*,u.first_name,u.surname,u.id landlord_user_id,u.location landlord_location
         FROM properties p JOIN users u ON u.id=p.landlord_id WHERE p.id=?""",(property_id,)).fetchone()
+    comments = conn.execute("""SELECT c.*,u.first_name,u.surname,u.role FROM listing_comments c
+        JOIN users u ON u.id=c.author_id WHERE c.property_id=? ORDER BY c.created_at ASC""",(property_id,)).fetchall()
     conn.close()
     if not p: abort(404)
     return page("""
@@ -916,10 +951,36 @@ def property_detail(property_id):
                     <p class="muted"><b>Combi stop:</b> {{p.combi_distance or 'Not specified'}}</p>
                     <p class="muted"><b>Road type:</b> {{p.road_type or 'Not specified'}}</p>
                 </div>
+                {% if p.landlord_notes %}
+                <div class="card" style="margin-top:15px">
+                    <h3>Landlord notes</h3>
+                    <p class="muted">{{p.landlord_notes}}</p>
+                </div>
+                {% endif %}
 
                 <hr style="border:0;border-top:1px solid #ebebeb">
                 <h2>About this property</h2>
                 <div class="property-description">{{p.description or "No property description has been added yet."}}</div>
+
+                <h2>Questions & Comments</h2>
+                {% for c in comments %}
+                <div class="review">
+                    <b>{{c.first_name}} {{c.surname}}{% if c.is_landlord_reply %} (Landlord){% endif %}</b>
+                    <p class="muted">{{c.content}}</p>
+                    <span class="small">{{c.created_at}}</span>
+                </div>
+                {% else %}
+                <p class="muted">No questions yet. Be the first to ask.</p>
+                {% endfor %}
+                {% if me %}
+                <form method="post" action="/property/{{p.id}}/comment" class="card">
+                    <label>Ask a question or comment</label>
+                    <textarea name="content" required placeholder="Is the yard fenced? Is pet allowed?"></textarea>
+                    <button class="btn">Post</button>
+                </form>
+                {% else %}
+                <p class="muted"><a href="/login">Log in</a> to ask a question.</p>
+                {% endif %}
             </div>
         </section>
 
@@ -949,7 +1010,26 @@ def property_detail(property_id):
             </div>
         </aside>
     </div>
-    """, p=p)
+    """, p=p, comments=comments)
+
+@app.route("/property/<int:property_id>/comment", methods=["POST"])
+@login_required
+def add_listing_comment(property_id):
+    me = current_user()
+    content = request.form.get("content","").strip()
+    if not content:
+        flash("Comment cannot be empty.")
+        return redirect(url_for("property_detail", property_id=property_id))
+    conn = db()
+    p = conn.execute("SELECT landlord_id FROM properties WHERE id=?",(property_id,)).fetchone()
+    if not p:
+        conn.close(); abort(404)
+    is_reply = 1 if me["id"] == p["landlord_id"] else 0
+    conn.execute("INSERT INTO listing_comments (property_id,author_id,content,is_landlord_reply) VALUES (?,?,?,?)",
+                (property_id, me["id"], content[:1000], is_reply))
+    conn.commit(); conn.close()
+    flash("Your comment has been posted.")
+    return redirect(url_for("property_detail", property_id=property_id))
 
 @app.route("/inbox")
 @login_required
