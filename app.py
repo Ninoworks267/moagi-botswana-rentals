@@ -440,23 +440,36 @@ def pay():
     if request.method == "POST":
         method = request.form.get("method","")
         phone = request.form.get("phone","").strip()
-        flash("Payment request sent via " + method + " to " + phone + ". Complete on your phone.")
+        flash("Demo payment recorded via " + method + " for " + phone + ". (Live mobile-money API integration coming soon.)")
         return redirect(url_for("pay", item=item, amount=amount))
     return page("""
+    <style>
+    .pay-methods{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin:15px 0}
+    .pay-method{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:18px;border:2px solid #ebebeb;border-radius:12px;cursor:pointer;background:#fff;transition:.15s}
+    .pay-method:hover{border-color:#222;transform:translateY(-2px)}
+    .pay-method input{display:none}
+    .pay-method.selected{border-color:#222;background:#f7f7f7}
+    .pay-logo{font-size:26px;font-weight:800;margin-bottom:6px}
+    .pay-myZaka{color:#00a651}
+    .pay-orange{color:#ff6600}
+    .pay-smega{color:#0033a0}
+    </style>
     <h1>Pay for {{item}}</h1>
     <p class="muted">Amount: P{{amount}}. Choose a mobile money method.</p>
-    <form method="post" class="card">
-        <label>Payment method</label>
-        <select name="method" required>
-            <option>MyZaka</option>
-            <option>Orange Money</option>
-            <option>Smega</option>
-        </select>
+    <form method="post" class="card" id="payForm">
+        <div class="pay-methods">
+            <label class="pay-method selected"><input type="radio" name="method" value="MyZaka" checked><span class="pay-logo pay-myZaka">MyZaka</span><span class="small">Mascom</span></label>
+            <label class="pay-method"><input type="radio" name="method" value="Orange Money"><span class="pay-logo pay-orange">Orange Money</span><span class="small">Orange</span></label>
+            <label class="pay-method"><input type="radio" name="method" value="Smega"><span class="pay-logo pay-smega">Smega</span><span class="small">Smega</span></label>
+        </div>
         <label>Your phone number</label>
-        <input name="phone" placeholder="+267..." required>
-        <button class="btn">Pay now</button>
+        <input name="phone" placeholder="+267 7X XXX XXX" required>
+        <button class="btn" style="width:100%">Pay P{{amount}}</button>
     </form>
     <div class="card"><h3>Landlord onboarding</h3><p class="muted">Landlords pay a small onboarding fee via the same methods to activate listings.</p></div>
+    <script>
+    (function(){var labels=document.querySelectorAll('.pay-method');labels.forEach(function(l){l.addEventListener('click',function(){labels.forEach(function(x){x.classList.remove('selected')});l.classList.add('selected');});});})();
+    </script>
     """, item=item, amount=amount)
 
 @app.route("/register", methods=["GET","POST"])
@@ -890,18 +903,18 @@ def property_detail(property_id):
                 {% endif %}
                 <div class="card" style="margin-top:15px">
                     <h3>Property highlights</h3>
-                    <p class="muted"><b>Yard:</b> {{p.yard_size or 'N/A'}} | <b>Fencing:</b> {{p.fencing or 'N/A'}} | <b>Parking:</b> {{p.parking or 'N/A'}}</p>
+                    <p class="muted"><b>Yard:</b> {{p.yard_size or 'Not specified'}} | <b>Fencing:</b> {{p.fencing or 'Not specified'}} | <b>Parking:</b> {{p.parking or 'Not specified'}}</p>
                     <p class="muted"><b>Preferred tenant:</b> {{p.preferred_tenant or 'Any'}}</p>
                     <p class="muted"><b>House rules:</b> {{p.house_rules or 'Not specified'}}</p>
-                    <p class="muted"><b>Electricity:</b> {{p.electricity_meter or 'N/A'}}</p>
-                    <p class="muted"><b>Water:</b> {{p.water_billing or 'N/A'}}{% if p.water_amount %} (P{{p.water_amount}}){% endif %}{% if p.water_backup %} | Backup tank available{% endif %}</p>
+                    <p class="muted"><b>Electricity:</b> {{p.electricity_meter or 'Not specified'}}</p>
+                    <p class="muted"><b>Water:</b> {{p.water_billing or 'Not specified'}}{% if p.water_amount %} (P{{p.water_amount}}){% endif %}{% if p.water_backup %} | Backup tank available{% endif %}</p>
                     <p class="muted"><b>Deposit terms:</b> {{p.deposit_terms or 'Not specified'}}</p>
                 </div>
                 <div class="card" style="margin-top:15px">
                     <h3>Neighbourhood & Convenience</h3>
-                    <p class="muted"><b>Nearest shop:</b> {{p.nearest_shop or 'N/A'}} ({{p.shop_distance or 'N/A'}})</p>
-                    <p class="muted"><b>Combi stop:</b> {{p.combi_distance or 'N/A'}}</p>
-                    <p class="muted"><b>Road type:</b> {{p.road_type or 'N/A'}}</p>
+                    <p class="muted"><b>Nearest shop:</b> {{p.nearest_shop or 'Not specified'}} ({{p.shop_distance or 'Not specified'}})</p>
+                    <p class="muted"><b>Combi stop:</b> {{p.combi_distance or 'Not specified'}}</p>
+                    <p class="muted"><b>Road type:</b> {{p.road_type or 'Not specified'}}</p>
                 </div>
 
                 <hr style="border:0;border-top:1px solid #ebebeb">
