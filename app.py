@@ -185,131 +185,19 @@ BASE = r"""
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MOAGI — Find your space</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#080808;color:#f7f7f7;font-family:"Segoe UI",Inter,system-ui,-apple-system,Roboto,Arial,sans-serif;font-size:17px;line-height:1.65}
-a{color:inherit}nav{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:18px 6%;border-bottom:1px solid #292929;position:sticky;top:0;background:#080808;z-index:10;flex-wrap:wrap}
-.logo{font-size:27px;font-weight:900;letter-spacing:2px;text-decoration:none}nav .links{display:flex;gap:16px;align-items:center;flex-wrap:wrap}nav a{text-decoration:none;font-size:14px;color:#ddd}nav a:hover{color:#fff}
-.container{width:90%;max-width:1120px;margin:32px auto}.hero{padding:55px 0 35px;animation:slideUp .65s ease both}.hero h1{font-size:clamp(40px,7vw,76px);letter-spacing:-3px;margin:8px 0}.muted{color:#aaa;line-height:1.6}.eyebrow{color:#aaa;letter-spacing:3px;text-transform:uppercase;font-size:11px}
-.btn{display:inline-block;background:#fff;color:#080808;padding:12px 18px;border-radius:9px;text-decoration:none;font-weight:bold;border:1px solid #fff;cursor:pointer}.btn:hover{transform:translateY(-2px);background:#ddd}.btn.ghost{background:#111;color:#fff;border-color:#444}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(245px,1fr));gap:18px}.card{background:#111;border:1px solid #292929;border-radius:15px;padding:18px;animation:slideUp .5s ease both;transition:transform .2s,border-color .2s}.card:hover{transform:translateY(-4px);border-color:#777}
-.card img{width:100%;height:185px;object-fit:cover;border-radius:10px;background:#222}.price{font-size:23px;font-weight:bold}.tag{font-size:12px;color:#aaa;border:1px solid #333;padding:5px 9px;border-radius:20px;display:inline-block}
-input,select,textarea{width:100%;padding:13px;margin:7px 0 15px;background:#151515;border:1px solid #393939;border-radius:8px;color:white;font-size:15px}textarea{min-height:110px}label{font-size:13px;color:#ccc}form{max-width:620px}.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.flash{background:#1b1b1b;border:1px solid #333;border-radius:9px;padding:12px;margin:12px 0}.profile-head{display:flex;gap:22px;align-items:center;flex-wrap:wrap}.avatar{width:112px;height:112px;border-radius:50%;object-fit:cover;background:#222;border:2px solid #444}.review{padding:15px 0;border-bottom:1px solid #292929}.stars{color:#fff;letter-spacing:2px}.message{background:#171717;border:1px solid #333;padding:12px 15px;border-radius:14px;margin:10px 0;max-width:78%}.mine{margin-left:auto;background:#eee;color:#111}.small{font-size:12px;color:#999}footer{text-align:center;padding:35px;color:#777}
-#intro{position:fixed;inset:0;z-index:99;background:#050505;display:flex;align-items:center;justify-content:center;flex-direction:column;pointer-events:none;animation:introOut .9s ease 2.1s forwards}
-#intro h1{font-size:clamp(48px,10vw,90px);margin:8px;animation:pop .8s ease both}#intro p{color:#aaa;letter-spacing:3px;animation:pop 1s ease .25s both}
+*{box-sizing:border-box}body{margin:0;background:#ffffff;color:#222222;font-family:"Segoe UI",Inter,system-ui,-apple-system,Roboto,Arial,sans-serif;font-size:16px;line-height:1.6}
+a{color:inherit}nav{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:18px 6%;border-bottom:1px solid #ebebeb;position:sticky;top:0;background:#ffffff;z-index:10;flex-wrap:wrap;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.logo{font-size:27px;font-weight:900;letter-spacing:2px;text-decoration:none;color:#222}nav .links{display:flex;gap:16px;align-items:center;flex-wrap:wrap}nav a{text-decoration:none;font-size:14px;color:#222}nav a:hover{color:#ff385c}
+.container{width:90%;max-width:1120px;margin:32px auto}.hero{padding:55px 0 35px;animation:slideUp .65s ease both}.hero h1{font-size:clamp(32px,6vw,56px);letter-spacing:-1px;margin:8px 0;color:#222}.muted{color:#717171;line-height:1.6}.eyebrow{color:#717171;letter-spacing:3px;text-transform:uppercase;font-size:11px;font-weight:600}
+.btn{display:inline-block;background:#222;color:#fff;padding:12px 18px;border-radius:8px;text-decoration:none;font-weight:600;border:1px solid #222;cursor:pointer;transition:.15s}.btn:hover{background:#000;border-color:#000}.btn.ghost{background:#fff;color:#222;border-color:#b0b0b0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(245px,1fr));gap:18px}.card{background:#fff;border:1px solid #ebebeb;border-radius:12px;padding:18px;animation:slideUp .5s ease both;transition:transform .2s,box-shadow .2s;box-shadow:0 2px 8px rgba(0,0,0,.08)}.card:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.12)}
+.card img{width:100%;height:200px;object-fit:cover;border-radius:8px;background:#f7f7f7}.price{font-size:22px;font-weight:700;color:#222}.tag{font-size:12px;color:#222;border:1px solid #b0b0b0;padding:5px 9px;border-radius:20px;display:inline-block;background:#f7f7f7}
+input,select,textarea{width:100%;padding:13px;margin:7px 0 15px;background:#fff;border:1px solid #b0b0b0;border-radius:8px;color:#222;font-size:15px}textarea{min-height:110px}label{font-size:13px;color:#222;font-weight:600}form{max-width:620px}.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.flash{background:#f7f7f7;border:1px solid #ebebeb;border-radius:9px;padding:12px;margin:12px 0;color:#222}.profile-head{display:flex;gap:22px;align-items:center;flex-wrap:wrap}.avatar{width:112px;height:112px;border-radius:50%;object-fit:cover;background:#f7f7f7;border:2px solid #ebebeb}.review{padding:15px 0;border-bottom:1px solid #ebebeb}.stars{color:#ff385c;letter-spacing:2px}.message{background:#f7f7f7;border:1px solid #ebebeb;padding:12px 15px;border-radius:14px;margin:10px 0;max-width:78%;color:#222}.mine{margin-left:auto;background:#222;color:#fff}.small{font-size:12px;color:#717171}footer{text-align:center;padding:35px;color:#717171;border-top:1px solid #ebebeb;margin-top:40px}
+#intro{position:fixed;inset:0;z-index:99;background:#ffffff;display:flex;align-items:center;justify-content:center;flex-direction:column;pointer-events:none;animation:introOut .9s ease 2.1s forwards}
+#intro h1{font-size:clamp(48px,10vw,90px);margin:8px;animation:pop .8s ease both;color:#222}#intro p{color:#717171;letter-spacing:3px;animation:pop 1s ease .25s both}
 #intro.hidden{display:none}@keyframes pop{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:scale(1)}}@keyframes introOut{to{opacity:0;visibility:hidden}}@keyframes slideUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
 @media(max-width:650px){nav{padding:15px 5%}.container{width:92%}.row{grid-template-columns:1fr}.hero{padding-top:35px}.message{max-width:92%}}
-
-/* MOAGI HOMEPAGE DESIGN UPGRADE */
-:root {
-    --blue: #2878d0;
-    --blue-light: #65aaff;
-    --white: #ffffff;
-    --surface: #11151b;
-    --border: #26313e;
-}
-html { scroll-behavior: smooth; }
-body {
-    background: #080b10;
-    color: #f7f9fc;
-}
-nav {
-    background: rgba(8,11,16,.96);
-    backdrop-filter: blur(14px);
-    border-bottom: 1px solid #202c39;
-}
-.logo { color: white; }
-.logo::after { content: "."; color: var(--blue-light); }
-nav a:hover { color: var(--blue-light); }
-.container { max-width: 1180px; }
-.hero {
-    padding: 85px 35px 65px;
-    margin: 25px 0 28px;
-    border: 1px solid #25374b;
-    border-radius: 22px;
-    background: radial-gradient(ellipse at 85% 15%, #153b62 0%, transparent 48%),
-                linear-gradient(135deg,#111a27,#090d14 70%);
-}
-.hero .eyebrow { color: #80baff; }
-.hero h1 {
-    max-width: 750px;
-    line-height: 1.05;
-    letter-spacing: -3px;
-}
-.hero .muted { max-width: 580px; font-size: 17px; }
-.btn {
-    background: var(--blue);
-    border-color: var(--blue);
-    color: white;
-    transition: .2s ease;
-}
-.btn:hover {
-    background: #398be8;
-    border-color: #398be8;
-    color: white;
-}
-.btn.ghost {
-    background: transparent;
-    border-color: #52657a;
-    color: white;
-}
-.btn.ghost:hover {
-    background: #17283b;
-    border-color: var(--blue-light);
-}
-main.container > form.card {
-    max-width: 100%;
-    padding: 24px;
-    background: #101722;
-    border-color: #293c51;
-    margin-bottom: 42px;
-}
-input, select, textarea {
-    background: #0b111a;
-    border-color: #344253;
-}
-input:focus, select:focus, textarea:focus {
-    outline: 2px solid #2878d0;
-    border-color: #2878d0;
-}
-h2 { letter-spacing: -.5px; margin: 35px 0 20px; }
-.grid { gap: 22px; }
-.card {
-    background: #101722;
-    border-color: #263547;
-    border-radius: 17px;
-}
-.card:hover {
-    border-color: #438bd1;
-    box-shadow: 0 12px 32px rgba(0,0,0,.25);
-}
-.card img { height: 205px; }
-.card .price { color: #8fc4ff; }
-.tag {
-    color: #a9d2ff;
-    border-color: #31577d;
-    background: #14263a;
-}
-footer {
-    border-top: 1px solid #202c39;
-    margin-top: 65px;
-}
-h1,h2,h3 { font-weight: 800; letter-spacing: -.3px; }
-h1 { font-size: clamp(30px, 5vw, 46px); }
-h2 { font-size: 26px; }
-h3 { font-size: 21px; }
-p,li { font-size: 17px; line-height: 1.7; }
-@media(max-width:650px) {
-    .hero {
-        padding: 45px 22px;
-        margin-top: 15px;
-        border-radius: 16px;
-    }
-    .hero h1 { letter-spacing: -2px; }
-    .hero .muted { font-size: 15px; }
-    main.container > form.card { padding: 17px; }
-    .card img { height: 190px; }
-    nav .links { gap: 12px; }
-}
 
 </style></head><body>
 <div id="intro"><h1>MOAGI.</h1><p>EITA DAH! 👋</p></div>
@@ -652,28 +540,28 @@ def property_detail(property_id):
         height:390px;
         object-fit:cover;
         border-radius:16px;
-        background:#17202b;
+        background:#f7f7f7;
         display:block;
     }
     .property-placeholder {
         height:390px;
         border-radius:16px;
-        background:linear-gradient(135deg,#17283b,#101722);
+        background:linear-gradient(135deg,#f7f7f7,#ffffff);
         display:flex;
         align-items:center;
         justify-content:center;
-        color:#a9c9e8;
+        color:#717171;
     }
     .property-info {
-        background:#101722;
-        border:1px solid #293c51;
+        background:#ffffff;
+        border:1px solid #ebebeb;
         border-radius:18px;
         padding:25px;
     }
     .property-price {
         font-size:32px;
         font-weight:800;
-        color:#8fc4ff;
+        color:#222222;
         margin:15px 0;
     }
     .property-specs {
@@ -683,22 +571,22 @@ def property_detail(property_id):
         margin:20px 0;
     }
     .property-spec {
-        background:#17283b;
-        border:1px solid #31577d;
+        background:#f7f7f7;
+        border:1px solid #b0b0b0;
         padding:12px 15px;
         border-radius:10px;
-        color:#c6e0ff;
+        color:#222222;
     }
     .property-description {
         white-space:pre-line;
         line-height:1.8;
-        color:#d0d5dc;
+        color:#222222;
     }
     .landlord-panel {
         margin-top:22px;
         padding:20px;
-        background:#101722;
-        border:1px solid #293c51;
+        background:#ffffff;
+        border:1px solid #ebebeb;
         border-radius:16px;
     }
     .property-actions {
@@ -746,7 +634,7 @@ def property_detail(property_id):
                     <div class="property-spec">🛁 {{p.bathrooms}} Bathrooms</div>
                 </div>
 
-                <hr style="border:0;border-top:1px solid #293c51">
+                <hr style="border:0;border-top:1px solid #ebebeb">
                 <h2>About this property</h2>
                 <div class="property-description">{{p.description or "No property description has been added yet."}}</div>
             </div>
