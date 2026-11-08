@@ -101,6 +101,14 @@ def init_db():
         conn.execute("ALTER TABLE properties ADD COLUMN water_backup INTEGER DEFAULT 0")
     if "deposit_terms" not in prop_cols:
         conn.execute("ALTER TABLE properties ADD COLUMN deposit_terms TEXT")
+    if "nearest_shop" not in prop_cols:
+        conn.execute("ALTER TABLE properties ADD COLUMN nearest_shop TEXT")
+    if "shop_distance" not in prop_cols:
+        conn.execute("ALTER TABLE properties ADD COLUMN shop_distance TEXT")
+    if "combi_distance" not in prop_cols:
+        conn.execute("ALTER TABLE properties ADD COLUMN combi_distance TEXT")
+    if "road_type" not in prop_cols:
+        conn.execute("ALTER TABLE properties ADD COLUMN road_type TEXT")
     # landlord profile fields
     user_cols = columns(conn, "users")
     if "deposit_refund_days" not in user_cols:
@@ -716,12 +724,16 @@ def add_property():
             wamount = f.get("water_amount","").strip()
             wbackup = 1 if f.get("water_backup") else 0
             dterms = f.get("deposit_terms","").strip()
+            nshop = f.get("nearest_shop","").strip()
+            sdist = f.get("shop_distance","").strip()
+            cdist = f.get("combi_distance","").strip()
+            rtype = f.get("road_type","").strip()
             try:
                 wamount = float(wamount) if wamount else None
             except ValueError:
                 wamount = None
-            conn.execute("""INSERT INTO properties (landlord_id,title,location,price,bedrooms,bathrooms,description,photo,tenant_gender_pref,rent_share,bill_split,yard_size,parking,fencing,house_rules,preferred_tenant,electricity_meter,water_billing,water_amount,water_backup,deposit_terms)
-                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",(me["id"],title,location,price,beds,baths,description,photo,tgp,rs,bs,yard,parking,fencing,rules,pref,emeter,wbilling,wamount,wbackup,dterms))
+            conn.execute("""INSERT INTO properties (landlord_id,title,location,price,bedrooms,bathrooms,description,photo,tenant_gender_pref,rent_share,bill_split,yard_size,parking,fencing,house_rules,preferred_tenant,electricity_meter,water_billing,water_amount,water_backup,deposit_terms,nearest_shop,shop_distance,combi_distance,road_type)
+                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",(me["id"],title,location,price,beds,baths,description,photo,tgp,rs,bs,yard,parking,fencing,rules,pref,emeter,wbilling,wamount,wbackup,dterms,nshop,sdist,cdist,rtype))
             conn.commit(); conn.close()
             flash("Your property is now listed.")
             return redirect(url_for("dashboard"))
@@ -748,6 +760,11 @@ def add_property():
     <label>Water fixed amount (BWP)</label><input type="number" name="water_amount" min="0" step="1">
     <label><input type="checkbox" name="water_backup" value="1"> Water backup tank (Jojo) available</label>
     <label>Deposit terms</label><input name="deposit_terms" placeholder="e.g. 1 month deposit + 1st month rent">
+    <h3>Neighbourhood & Convenience</h3>
+    <label>Nearest supermarket</label><select name="nearest_shop"><option>Choppies</option><option>Pick n Pay</option><option>Spar</option><option>Sefalana</option><option>Shoprite</option></select>
+    <label>Distance to supermarket</label><input name="shop_distance" placeholder="e.g. 400m (5 min walk)">
+    <label>Distance to combi stop</label><input name="combi_distance" placeholder="e.g. 200m">
+    <label>Road type</label><select name="road_type"><option>Tarmac</option><option>Paved</option><option>Dirt/Gravel</option></select>
     <button class="btn">Publish listing</button></form>
     """)
 
@@ -879,6 +896,12 @@ def property_detail(property_id):
                     <p class="muted"><b>Electricity:</b> {{p.electricity_meter or 'N/A'}}</p>
                     <p class="muted"><b>Water:</b> {{p.water_billing or 'N/A'}}{% if p.water_amount %} (P{{p.water_amount}}){% endif %}{% if p.water_backup %} | Backup tank available{% endif %}</p>
                     <p class="muted"><b>Deposit terms:</b> {{p.deposit_terms or 'Not specified'}}</p>
+                </div>
+                <div class="card" style="margin-top:15px">
+                    <h3>Neighbourhood & Convenience</h3>
+                    <p class="muted"><b>Nearest shop:</b> {{p.nearest_shop or 'N/A'}} ({{p.shop_distance or 'N/A'}})</p>
+                    <p class="muted"><b>Combi stop:</b> {{p.combi_distance or 'N/A'}}</p>
+                    <p class="muted"><b>Road type:</b> {{p.road_type or 'N/A'}}</p>
                 </div>
 
                 <hr style="border:0;border-top:1px solid #ebebeb">
