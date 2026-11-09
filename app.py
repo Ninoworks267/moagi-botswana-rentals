@@ -460,7 +460,21 @@ def stay_detail(stay_id):
         <div class="price">P{{"{:,.0f}".format(s.price)}} <span class="small">/ night</span></div>
         <p class="muted">{{s.description}}</p>
         <p class="small">Rating: {{s.rating}}/5 - {{s.reviews}}</p>
-        <a class="btn" href="/pay?item={{s.title}}&amount={{s.price}}">Book & Pay</a>
+        <h3>Book this stay</h3>
+        <form method="get" action="/pay">
+            <input type="hidden" name="item" value="{{s.title}}">
+            <input type="hidden" name="amount" value="{{s.price}}">
+            <div class="row">
+                <div><label>Check-in date</label><input type="date" name="checkin" required></div>
+                <div><label>Check-out date</label><input type="date" name="checkout" required></div>
+            </div>
+            <div class="row">
+                <div><label>Check-in time</label><input type="time" name="checkin_time" value="14:00" required></div>
+                <div><label>Check-out time</label><input type="time" name="checkout_time" value="10:00" required></div>
+            </div>
+            <label>Guests</label><input type="number" name="guests" min="1" value="1" required>
+            <button class="btn" style="width:100%">Book & Pay</button>
+        </form>
     </div>
     """, s=s)
 
@@ -468,11 +482,16 @@ def stay_detail(stay_id):
 def pay():
     item = request.args.get("item","Booking")
     amount = request.args.get("amount","0")
+    checkin = request.args.get("checkin","")
+    checkout = request.args.get("checkout","")
+    checkin_time = request.args.get("checkin_time","")
+    checkout_time = request.args.get("checkout_time","")
+    guests = request.args.get("guests","1")
     if request.method == "POST":
         method = request.form.get("method","")
         phone = request.form.get("phone","").strip()
         flash("Demo payment recorded via " + method + " for " + phone + ". (Live mobile-money API integration coming soon.)")
-        return redirect(url_for("pay", item=item, amount=amount))
+        return redirect(url_for("pay", item=item, amount=amount, checkin=checkin, checkout=checkout, checkin_time=checkin_time, checkout_time=checkout_time, guests=guests))
     return page("""
     <style>
     .pay-methods{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin:15px 0}
@@ -487,7 +506,20 @@ def pay():
     </style>
     <h1>Pay for {{item}}</h1>
     <p class="muted">Amount: P{{amount}}. Choose a mobile money method.</p>
+    {% if checkin %}
+    <div class="card" style="margin-bottom:15px">
+        <h3>Booking details</h3>
+        <p class="muted">Check-in: {{checkin}} at {{checkin_time}}</p>
+        <p class="muted">Check-out: {{checkout}} at {{checkout_time}}</p>
+        <p class="muted">Guests: {{guests}}</p>
+    </div>
+    {% endif %}
     <form method="post" class="card" id="payForm">
+        <input type="hidden" name="checkin" value="{{checkin}}">
+        <input type="hidden" name="checkout" value="{{checkout}}">
+        <input type="hidden" name="checkin_time" value="{{checkin_time}}">
+        <input type="hidden" name="checkout_time" value="{{checkout_time}}">
+        <input type="hidden" name="guests" value="{{guests}}">
         <div class="pay-methods">
             <label class="pay-method selected"><input type="radio" name="method" value="MyZaka" checked><span class="pay-logo pay-myZaka">MyZaka</span><span class="small">Mascom</span></label>
             <label class="pay-method"><input type="radio" name="method" value="Orange Money"><span class="pay-logo pay-orange">Orange Money</span><span class="small">Orange</span></label>
@@ -501,7 +533,7 @@ def pay():
     <script>
     (function(){var labels=document.querySelectorAll('.pay-method');labels.forEach(function(l){l.addEventListener('click',function(){labels.forEach(function(x){x.classList.remove('selected')});l.classList.add('selected');});});})();
     </script>
-    """, item=item, amount=amount)
+    """, item=item, amount=amount, checkin=checkin, checkout=checkout, checkin_time=checkin_time, checkout_time=checkout_time, guests=guests)
 
 @app.route("/register", methods=["GET","POST"])
 def register():
