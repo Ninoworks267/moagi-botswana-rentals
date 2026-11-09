@@ -296,15 +296,46 @@ input,select,textarea{width:100%;padding:13px;margin:7px 0 15px;background:#fff;
 @media(max-width:650px){nav{padding:15px 5%}.container{width:92%}.row{grid-template-columns:1fr}.hero{padding-top:35px}.message{max-width:92%}}
 .ad-slideshow{position:relative;min-height:160px}.ad-slide{display:none;padding:20px;border:1px solid #ebebeb;border-radius:12px;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.08)}.ad-slide.active{display:block;animation:slideUp .5s ease both}
 
-</style></head><body>
+</style>
+<style id="darkModeStyle" disabled>
+body{background:#0b0d12;color:#f5f5f5}
+nav{background:#11151b;border-color:#2a3040;box-shadow:none}
+.logo,nav a{color:#f5f5f5}
+.card{background:#161a22;border-color:#2a3040;box-shadow:0 2px 8px rgba(0,0,0,.4)}
+.card img{background:#1f2430}
+.muted{color:#a0a0a0}
+.tag{background:#1f2430;border-color:#3a4050;color:#f5f5f5}
+input,select,textarea{background:#1f2430;border-color:#3a4050;color:#f5f5f5}
+.flash{background:#1f2430;border-color:#2a3040;color:#f5f5f5}
+.avatar{background:#1f2430;border-color:#3a4050}
+.review{border-color:#2a3040}
+.message{background:#1f2430;border-color:#2a3040;color:#f5f5f5}
+.mine{background:#2a3040;color:#fff}
+.small{color:#a0a0a0}
+footer{color:#a0a0a0;border-color:#2a3040}
+.price{color:#f5f5f5}
+.btn.ghost{background:#1f2430;color:#f5f5f5;border-color:#3a4050}
+.hero h1{color:#f5f5f5}
+#intro{background:#0b0d12}
+#intro h1{color:#f5f5f5}
+#intro p{color:#a0a0a0}
+.ad-slide{background:#161a22;border-color:#2a3040}
+.property-info,.landlord-panel{background:#161a22;border-color:#2a3040}
+.property-spec{background:#1f2430;border-color:#3a4050;color:#f5f5f5}
+.property-placeholder{background:linear-gradient(135deg,#1f2430,#161a22)}
+.property-description{color:#d0d5dc}
+.pay-method{background:#161a22;border-color:#2a3040}
+</style>
+</head><body>
 <div id="intro"><h1>MOAGI.</h1><p>EITA DAH! </p></div>
 <nav><a class="logo" href="/">MOAGI.</a><div class="links">
-<a href="/houses">Houses</a><a href="/stays">Stays</a>{% if me %}<a href="/dashboard">Dashboard</a><a href="/inbox">Inbox</a><a href="/profile/edit">My profile</a><a href="/logout">Log out</a>{% else %}<a href="/login">Log in</a><a class="btn" href="/register">Join MOAGI</a>{% endif %}
+<a href="/houses">Houses</a><a href="/stays">Stays</a><button id="themeToggle" class="btn ghost" type="button" style="padding:8px 12px;font-size:13px">Dark</button>{% if me %}<a href="/dashboard">Dashboard</a><a href="/inbox">Inbox</a><a href="/profile/edit">My profile</a><a href="/logout">Log out</a>{% else %}<a href="/login">Log in</a><a class="btn" href="/register">Join MOAGI</a>{% endif %}
 </div></nav><main class="container">
 {% with items=get_flashed_messages() %}{% for item in items %}<div class="flash">{{item}}</div>{% endfor %}{% endwith %}
 {{body|safe}}</main><footer>MOAGI - Find your space in Botswana</footer>
 <script>
 (function(){const intro=document.getElementById('intro');try{if(sessionStorage.getItem('moagi_welcomed')==='yes'){intro.classList.add('hidden')}else{sessionStorage.setItem('moagi_welcomed','yes')}}catch(e){}})();
+(function(){var btn=document.getElementById('themeToggle');var style=document.getElementById('darkModeStyle');function apply(t){if(t==='dark'){style.disabled=false;btn.textContent='Light';document.body.setAttribute('data-theme','dark')}else{style.disabled=true;btn.textContent='Dark';document.body.setAttribute('data-theme','light')}}var saved=localStorage.getItem('moagi_theme')||'light';apply(saved);btn.addEventListener('click',function(){var next=(localStorage.getItem('moagi_theme')||'light')==='light'?'dark':'light';localStorage.setItem('moagi_theme',next);apply(next)});})();
 </script></body></html>
 """
 
@@ -569,9 +600,9 @@ def pay():
         <input type="hidden" name="checkout_time" value="{{checkout_time}}">
         <input type="hidden" name="guests" value="{{guests}}">
         <div class="pay-methods">
-            <label class="pay-method selected"><input type="radio" name="method" value="MyZaka" checked><span class="pay-logo pay-myZaka">MyZaka</span><span class="small">Mascom</span></label>
-            <label class="pay-method"><input type="radio" name="method" value="Orange Money"><span class="pay-logo pay-orange">Orange Money</span><span class="small">Orange</span></label>
-            <label class="pay-method"><input type="radio" name="method" value="Smega"><span class="pay-logo pay-smega">Smega</span><span class="small">Smega</span></label>
+            <label class="pay-method selected"><input type="radio" name="method" value="MyZaka" checked><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Mascom_logo.svg/120px-Mascom_logo.svg.png" alt="MyZaka" style="height:32px;object-fit:contain;margin-bottom:6px" onerror="this.style.display='none'"><span class="pay-logo pay-myZaka">MyZaka</span><span class="small">Mascom</span></label>
+            <label class="pay-method"><input type="radio" name="method" value="Orange Money"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Orange_logo.svg/120px-Orange_logo.svg.png" alt="Orange Money" style="height:32px;object-fit:contain;margin-bottom:6px" onerror="this.style.display='none'"><span class="pay-logo pay-orange">Orange Money</span><span class="small">Orange</span></label>
+            <label class="pay-method"><input type="radio" name="method" value="Smega"><img src="https://upload.wikimedia.org/wikipedia/en/thumb/9/9b/Botswana_Post_logo.png/120px-Botswana_Post_logo.png" alt="Smega" style="height:32px;object-fit:contain;margin-bottom:6px" onerror="this.style.display='none'"><span class="pay-logo pay-smega">Smega</span><span class="small">Botswana Post</span></label>
         </div>
         <label>Your phone number</label>
         <input name="phone" placeholder="+267 7X XXX XXX" required>
