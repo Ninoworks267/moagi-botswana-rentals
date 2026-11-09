@@ -165,6 +165,7 @@ def init_db():
     conn.commit()
     seed_demo(conn)
     seed_stays(conn)
+    seed_houses(conn)
     conn.close()
 
 def seed_demo(conn):
@@ -240,6 +241,38 @@ def seed_stays(conn):
     for stype,title,loc,price,photo,desc,rating,rev in stays_data:
         conn.execute("""INSERT INTO stays (stay_type,title,location,price,photo,description,rating,reviews) VALUES (?,?,?,?,?,?,?,?)""",
                      (stype,title,loc,price,photo,desc,float(rating),rev))
+    conn.commit()
+
+def seed_houses(conn):
+    count = conn.execute("SELECT COUNT(*) FROM properties").fetchone()[0]
+    if count >= 20:
+        return
+    landlord = conn.execute("SELECT id FROM users WHERE role='landlord' LIMIT 1").fetchone()
+    lid = landlord["id"] if landlord else 1
+    houses = [
+        ("2-bedroom apartment in Gaborone Block 10","Gaborone, Block 10",5200,2,1,"Bright apartment near shops and transport.","https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1000&q=85,https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1000&q=85,https://images.unsplash.com/photo-1556912173-3bb406ef7e77?auto=format&fit=crop&w=1000&q=85,https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1000&q=85"),
+        ("Family home in Francistown Area W","Francistown, Area W",4800,3,2,"Spacious family home with fenced yard.","https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1000&q=85,https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?auto=format&fit=crop&w=1000&q=85,https://images.unsplash.com/photo-1600573472592-401b489a3cdc?auto=format&fit=crop&w=1000&q=85,https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=1000&q=85"),
+        ("Maun riverside apartment","Maun, Boseja",6000,2,1,"Apartment near the river with great views.","https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1000&q=85,https://images.unsplash.com/photo-1522771739844-6a9a0d0269b3?auto=format&fit=crop&w=1000&q=85,https://images.unsplash.com/photo-1556911220-bff31c812dba?auto=format&fit=crop&w=1000&q=85,https://images.unsplash.com/photo-1502005930093-1e9c02534a9b?auto=format&fit=crop&w=1000&q=85"),
+        ("Kasane family house with garden","Kasane, Plateau",7500,4,2,"Large family house with garden and garage.","https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1000&q=85,https://images.unsplash.com/photo-1600566752355-35792bedcfea?auto=format&fit=crop&w=1000&q=85,https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1000&q=85,https://images.unsplash.com/photo-1600573472592-401b489a3cdc?auto=format&fit=crop&w=1000&q=85"),
+        ("Palapye starter home","Palapye, Extension 3",3200,2,1,"Neat starter home in quiet area.","https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?auto=format&fit=crop&w=1000&q=85,https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1000&q=85,https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=1000&q=85,https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=1000&q=85"),
+        ("Molepolole 3-bedroom home","Molepolole",4200,3,2,"Family home with carport and yard.","https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?auto=format&fit=crop&w=1000&q=85,https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1000&q=85,https://images.unsplash.com/photo-1600573472592-401b489a3cdc?auto=format&fit=crop&w=1000&q=85,https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=1000&q=85"),
+        ("Lobatse apartment","Lobatse",3800,2,1,"Apartment with balcony views.","https://images.unsplash.com/photo-1493809842364-78817add7cfa?auto=format&fit=crop&w=1000&q=85,https://images.unsplash.com/photo-1540518614846-7eded433c457?auto=format&fit=crop&w=1000&q=85,https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&w=1000&q=85,https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=1000&q=85"),
+        ("Serowe family residence","Serowe",4000,3,2,"Large home with fenced yard.","https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=1000&q=85,https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&w=1000&q=85,https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=1000&q=85,https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1000&q=85"),
+        ("Kanye two-bedroom home","Kanye",2800,2,1,"Affordable home in quiet neighbourhood.","https://images.unsplash.com/photo-1560184897-ae75f418493e?auto=format&fit=crop&w=1000&q=85,https://images.unsplash.com/photo-1522771739844-6a9a0d0269b3?auto=format&fit=crop&w=1000&q=85,https://images.unsplash.com/photo-1556911220-bff31c812dba?auto=format&fit=crop&w=1000&q=85,https://images.unsplash.com/photo-1502005930093-1e9c02534a9b?auto=format&fit=crop&w=1000&q=85"),
+        ("Mochudi modern home","Mochudi",3500,2,1,"Modern home with carport.","https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=1000&q=85,https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=1000&q=85,https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&w=1000&q=85,https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=1000&q=85"),
+        ("Mahalapye townhouse","Mahalapye",3600,2,1,"Townhouse near main road.","https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?auto=format&fit=crop&w=1000&q=85,https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1000&q=85,https://images.unsplash.com/photo-1600573472592-401b489a3cdc?auto=format&fit=crop&w=1000&q=85,https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=1000&q=85"),
+        ("Selebi-Phikwe 3-bedroom","Selebi-Phikwe",3900,3,2,"Family home with garden.","https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1000&q=85,https://images.unsplash.com/photo-1600566752355-35792bedcfea?auto=format&fit=crop&w=1000&q=85,https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1000&q=85,https://images.unsplash.com/photo-1600573472592-401b489a3cdc?auto=format&fit=crop&w=1000&q=85"),
+        ("Jwaneng 2-bedroom","Jwaneng",4100,2,1,"Home near the mine area.","https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1000&q=85,https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1000&q=85,https://images.unsplash.com/photo-1556912173-3bb406ef7e77?auto=format&fit=crop&w=1000&q=85,https://images.unsplash.com/photo-1484154218962-a197022b5858?auto=format&fit=crop&w=1000&q=85"),
+        ("Orapa family home","Orapa",4500,3,2,"Spacious home in Orapa.","https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1000&q=85,https://images.unsplash.com/photo-1600566753086-00f18fb6b3ea?auto=format&fit=crop&w=1000&q=85,https://images.unsplash.com/photo-1600573472592-401b489a3cdc?auto=format&fit=crop&w=1000&q=85,https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=1000&q=85"),
+        ("Tutume village home","Tutume",2600,2,1,"Affordable home in Tutume.","https://images.unsplash.com/photo-1600047509807-ba8f99d2cdde?auto=format&fit=crop&w=1000&q=85,https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1000&q=85,https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=format&fit=crop&w=1000&q=85,https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=1000&q=85"),
+    ]
+    for title,loc,price,beds,baths,desc,photo in houses:
+        exists = conn.execute("SELECT id FROM properties WHERE title=?",(title,)).fetchone()
+        if exists:
+            continue
+        conn.execute("""INSERT INTO properties (landlord_id,title,location,price,bedrooms,bathrooms,description,photo,tenant_gender_pref,rent_share,bill_split,yard_size,parking,fencing,house_rules,preferred_tenant,electricity_meter,water_billing,water_amount,water_backup,deposit_terms,nearest_shop,shop_distance,combi_distance,road_type,landlord_notes)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+            (lid,title,loc,price,beds,baths,desc,photo,"Any","No","","Small plot","Open driveway","Wall","No subletting","Any","BPC Prepaid (Smarten/Hexing)","Individual WUC meter",None,0,"1 month deposit + 1st month rent","Choppies","500m (6 min walk)","300m","Tarmac","Well maintained property."))
     conn.commit()
 
 def current_user():
