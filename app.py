@@ -374,6 +374,54 @@ def home():
             <p class="muted">Open an account online and bank from anywhere.</p>
             <a class="btn" href="https://www.fnb.co.bw" target="_blank">Open account</a>
         </div>
+        <div class="ad-slide">
+            <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=800&q=80" alt="KFC" style="width:100%;height:180px;object-fit:cover;border-radius:8px;margin-bottom:10px">
+            <h3>KFC Botswana - Finger Lickin Good</h3>
+            <p class="muted">Fresh chicken meals and family buckets. Order online.</p>
+            <a class="btn" href="https://www.kfc.co.bw" target="_blank">Order now</a>
+        </div>
+        <div class="ad-slide">
+            <img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=800&q=80" alt="Coffee" style="width:100%;height:180px;object-fit:cover;border-radius:8px;margin-bottom:10px">
+            <h3>Vida e Caffe - Coffee & More</h3>
+            <p class="muted">Fresh coffee, pastries and light meals.</p>
+            <a class="btn" href="https://www.vidaecaffe.com" target="_blank">Visit</a>
+        </div>
+        <div class="ad-slide">
+            <img src="https://images.unsplash.com/photo-1519999482648-25049ddd37b1?auto=format&fit=crop&w=800&q=80" alt="Bank" style="width:100%;height:180px;object-fit:cover;border-radius:8px;margin-bottom:10px">
+            <h3>Standard Chartered Botswana</h3>
+            <p class="muted">Banking made simple. Open an account today.</p>
+            <a class="btn" href="https://www.sc.com/bw" target="_blank">Learn more</a>
+        </div>
+        <div class="ad-slide">
+            <img src="https://images.unsplash.com/photo-1540553016722-983e48a2cd10?auto=format&fit=crop&w=800&q=80" alt="Woolworths" style="width:100%;height:180px;object-fit:cover;border-radius:8px;margin-bottom:10px">
+            <h3>Woolworths Botswana - Quality Food</h3>
+            <p class="muted">Fresh food, clothing and homeware.</p>
+            <a class="btn" href="https://www.woolworths.co.bw" target="_blank">Shop</a>
+        </div>
+        <div class="ad-slide">
+            <img src="https://images.unsplash.com/photo-1586880244386-869d68908f72?auto=format&fit=crop&w=800&q=80" alt="Pick n Pay" style="width:100%;height:180px;object-fit:cover;border-radius:8px;margin-bottom:10px">
+            <h3>Pick n Pay Botswana - Save More</h3>
+            <p class="muted">Weekly specials on groceries and household items.</p>
+            <a class="btn" href="https://www.pnp.co.bw" target="_blank">View specials</a>
+        </div>
+        <div class="ad-slide">
+            <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=800&q=80" alt="Be Mobile" style="width:100%;height:180px;object-fit:cover;border-radius:8px;margin-bottom:10px">
+            <h3>Be Mobile - Connect Botswana</h3>
+            <p class="muted">Affordable mobile and data services.</p>
+            <a class="btn" href="https://www.bemobile.bw" target="_blank">Explore</a>
+        </div>
+        <div class="ad-slide">
+            <img src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&w=800&q=80" alt="Game" style="width:100%;height:180px;object-fit:cover;border-radius:8px;margin-bottom:10px">
+            <h3>Game Stores Botswana</h3>
+            <p class="muted">Electronics, appliances and home goods.</p>
+            <a class="btn" href="https://www.game.co.bw" target="_blank">Shop now</a>
+        </div>
+        <div class="ad-slide">
+            <img src="https://images.unsplash.com/photo-1556742111-a301076d9d18?auto=format&fit=crop&w=800&q=80" alt="Choppies" style="width:100%;height:180px;object-fit:cover;border-radius:8px;margin-bottom:10px">
+            <h3>Choppies - More Savings</h3>
+            <p class="muted">Extra discounts on selected items this week.</p>
+            <a class="btn" href="https://www.choppies.co.bw" target="_blank">Shop now</a>
+        </div>
     </div>
     <script>
     (function(){var s=document.querySelectorAll('.ad-slide');var i=0;setInterval(function(){s[i].classList.remove('active');i=(i+1)%s.length;s[i].classList.add('active');},4000);})();
@@ -775,7 +823,7 @@ def add_property():
         try:
             price = float(f.get("price","0")); beds = int(f.get("bedrooms","0")); baths = int(f.get("bathrooms","0"))
             photos = []
-            for upload in request.files.getlist("photo"):
+            for upload in request.files.getlist("photo")[:10]:
                 name = save_image(upload)
                 if name:
                     photos.append(name)
@@ -821,7 +869,7 @@ def add_property():
     <div class="row"><div><label>Monthly rent (BWP)</label><input type="number" name="price" min="1" step="1" required></div><div><label>Bedrooms</label><input type="number" name="bedrooms" min="0" required></div></div>
     <label>Bathrooms</label><input type="number" name="bathrooms" min="0" required>
     <label>Description</label><textarea name="description" required></textarea>
-    <label>Property photos (optional; JPG, PNG or WEBP; select multiple rooms)</label><input type="file" name="photo" accept=".jpg,.jpeg,.png,.webp" multiple>
+    <label>Property photos (optional; JPG, PNG or WEBP; select up to 10 from your gallery)</label><input type="file" name="photo" accept=".jpg,.jpeg,.png,.webp" multiple>
     <label>Preferred tenant gender</label><select name="tenant_gender_pref"><option>Any</option><option>Female only</option><option>Male only</option></select>
     <label>Looking to share rent?</label><select name="rent_share"><option>No</option><option>Yes - room available</option></select>
     <label>Bill splitting details (if sharing)</label><textarea name="bill_split" placeholder="e.g. Split electricity and water equally; rent P2500 each"></textarea>
